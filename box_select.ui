@@ -61,9 +61,9 @@
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>300</y>
+      <y>180</y>
       <width>141</width>
-      <height>191</height>
+      <height>311</height>
      </rect>
     </property>
     <property name="font">
@@ -73,7 +73,7 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QRadioButton" name="radioButton">
+      <widget class="QRadioButton" name="radioBox1">
        <property name="font">
         <font>
          <pointsize>18</pointsize>
@@ -85,7 +85,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton_2">
+      <widget class="QRadioButton" name="radioBox2">
        <property name="font">
         <font>
          <pointsize>18</pointsize>
@@ -97,7 +97,19 @@
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton_3">
+      <widget class="QRadioButton" name="radioBox3">
+       <property name="font">
+        <font>
+         <pointsize>18</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Bbox_3</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioNone">
        <property name="font">
         <font>
          <pointsize>18</pointsize>
@@ -110,7 +122,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="label_frame">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -135,7 +147,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="label_msg">
     <property name="geometry">
      <rect>
       <x>600</x>

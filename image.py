@@ -179,6 +179,7 @@ class UI(QMainWindow):
 		if self.pflag:
 			return
 		self.label_msg.setText("A BAD BBOX")
+		self.label_msg.setStyleSheet("background-color: rgb({},{},{})".format(197, 119, 119))
 		txt_path = self.bad_path + os.path.basename(self.img_list[self.i]).replace(self.ext, '.txt')
 		self.write_txt(txt_path, self.text_list)
 		self.bad_flag = True
@@ -232,6 +233,7 @@ class UI(QMainWindow):
 
 	def plotter(self, indx):
 		self.label_msg.setText("")
+		self.label_msg.setStyleSheet("background-color: rgb({},{},{})".format(240,240,240))
 		img_ = self.img_list[indx]
 		# Open the image
 		self.pixmap = QPixmap(img_)
@@ -243,6 +245,7 @@ class UI(QMainWindow):
 			c_id = int(txt_l[0])
 		else:
 			self.label_msg.setText("NO BBOX")
+			self.label_msg.setStyleSheet("background-color: rgb({},{},{})".format(140, 119, 119))
 			c_id = 0
 		self.label_id.setText(classes_id[c_id])
 		self.set_idc(c_id)
@@ -252,6 +255,7 @@ class UI(QMainWindow):
 		bad_list = [os.path.basename(s) for s in bad_list]
 		if os.path.basename(self.img_list[indx]).replace(self.ext, '.txt') in bad_list:
 			self.label_msg.setText("BAD BBOX")
+			self.label_msg.setStyleSheet("background-color: rgb({},{},{})".format(197, 119, 119))
 			self.bad_flag = True
 		else:
 			self.bad_flag = False
