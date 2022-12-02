@@ -13,8 +13,8 @@ random.seed(42)
 colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(classes_id))]
 colors.append([255, 255, 255])
 
-# init_path = "D:\\Pytorch\\yolov5\\runs\\4CM11_24_L_#61"
-init_path = "D:/Pytorch/yolov5/runs/Test_DB/frames"
+init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt"
+# init_path = "D:/Pytorch/yolov5/runs/Test_DB/frames"
 
 class UI(QMainWindow):
 	def __init__(self):
@@ -138,7 +138,7 @@ class UI(QMainWindow):
 			if self.flag:
 				break
 			if fflag:
-				time.sleep(0.005)
+				time.sleep(0.1)
 		self.i = j
 		self.flag = False
 		self.pflag = False
@@ -154,7 +154,7 @@ class UI(QMainWindow):
 			if self.flag:
 				break
 			if fflag:
-				time.sleep(0.005)
+				time.sleep(0.05)
 		self.i = j
 		self.flag = False
 		self.pflag = False
@@ -201,6 +201,7 @@ class UI(QMainWindow):
 				prev_path = self.ano_path + os.path.basename(self.img_list[self.i-1]).replace(self.ext, '.txt')
 				txt_path = self.ano_path + os.path.basename(self.img_list[self.i]).replace(self.ext, '.txt')
 				shutil.copy(prev_path, txt_path)
+				self.bad_bbox()
 				self.label_msg.setText("BBOX Copiado!!")
 			except:
 				self.label_msg.setText("NO {}".format(os.path.basename(self.img_list[self.i-1])))
