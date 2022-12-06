@@ -282,6 +282,7 @@ class UI(QMainWindow):
 			self.label_msg.setText("CLASE Cambiada a B0B")
 		else:
 			self.label_msg.setText("CLASE A D0X!!")
+			self.next_()
 
 
 	def clicker(self):
