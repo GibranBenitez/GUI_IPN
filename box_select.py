@@ -14,7 +14,9 @@ classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f",
 # init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt"
 # init_path = "D:/Pytorch/yolov5/runs/Test_DB/frames"
 init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
+init_path = "D:/Pytorch/yolov5/runs/test_bad1/bad_bboxes"
 frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
+frames_path = "F:/Datasets/IPN_hand/frames"
 random.seed(42)
 colors = [[70,70,120]]
 colors.append([230, 0, 230])

@@ -183,6 +183,7 @@ class UI(QMainWindow):
 		txt_path = self.bad_path + os.path.basename(self.img_list[self.i]).replace(self.ext, '.txt')
 		self.write_txt(txt_path, self.text_list)
 		self.bad_flag = True
+		self.next_()
 
 	def good_bbox(self):
 		if self.pflag:
