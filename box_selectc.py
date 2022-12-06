@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QVBoxLayout, QRadioButton, QLabel, QFileDialog, QShortcut
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QVBoxLayout, QRadioButton, QCheckBox, QLabel, QFileDialog, QShortcut
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QKeySequence, QKeyEvent
@@ -29,7 +29,7 @@ class UI(QMainWindow):
 		super(UI, self).__init__()
 
 		# Load the ui file
-		uic.loadUi("box_select.ui", self)
+		uic.loadUi("box_selectc.ui", self)
 
 		self.flag = False
 		self.pflag = False
@@ -45,10 +45,10 @@ class UI(QMainWindow):
 		self.radioB1 = self.findChild(QRadioButton, "radioBox1")
 		self.radioB2 = self.findChild(QRadioButton, "radioBox2")
 		self.radioNo = self.findChild(QRadioButton, "radioNone")
-		self.radS1 = self.findChild(QRadioButton, "radioSub1")
-		self.radS2 = self.findChild(QRadioButton, "radioSub2")
-		self.radS3 = self.findChild(QRadioButton, "radioSub3")
-		self.radS4 = self.findChild(QRadioButton, "radioSub4")
+		self.radS1 = self.findChild(QCheckBox, "radioSub1")
+		self.radS2 = self.findChild(QCheckBox, "radioSub2")
+		self.radS3 = self.findChild(QCheckBox, "radioSub3")
+		self.radS4 = self.findChild(QCheckBox, "radioSub4")
 
 		self.radS1.setVisible(False)
 		self.radS2.setVisible(False)
@@ -80,7 +80,6 @@ class UI(QMainWindow):
 		self.button.clicked.connect(self.clicker)
 		self.buttonSend.clicked.connect(self.send_box)
 		self.buttonDelete.clicked.connect(self.del_chosen)
-		self.buttonAll.clicked.connect(self.cambia_sb)
 		self.buttonSend.setAutoDefault(True)
 		self.radioNo.setChecked(True)
 		self.radS1.setChecked(True)
@@ -90,10 +89,11 @@ class UI(QMainWindow):
 		self.radioB2.toggled.connect(lambda: self.btnstate(self.radioB2))
 		self.radioNo.toggled.connect(lambda: self.btnstate(self.radioNo))
 
-		self.radS1.toggled.connect(lambda: self.Sbtnstate(self.radS1))
-		self.radS2.toggled.connect(lambda: self.Sbtnstate(self.radS2))
-		self.radS3.toggled.connect(lambda: self.Sbtnstate(self.radS3))
-		self.radS4.toggled.connect(lambda: self.Sbtnstate(self.radS4))
+		self.radS1.toggled.connect(lambda: self.Sbtnstate(False))
+		self.radS2.toggled.connect(lambda: self.Sbtnstate(False))
+		self.radS3.toggled.connect(lambda: self.Sbtnstate(False))
+		self.radS4.toggled.connect(lambda: self.Sbtnstate(False))
+		self.buttonAll.clicked.connect(lambda: self.Sbtnstate(True))
 
 		# Show the App
 		self.show()
@@ -119,28 +119,68 @@ class UI(QMainWindow):
 				self.text_chosen = None
 
 	def sbvis(self, blen, tdown=False):
-		self.radS1.setChecked(True)
 		if len(blen) < 2:
 			self.plotter2(blen, tdown)
 			self.text_chosen = blen
 			return
 		if len(blen) > 1:
-			self.cambia_sb(1)
+			chlag = [0 for s in range(len(blen))]
+			chlag[0] = 1
+			self.radS1.setChecked(True)
+			self.radS2.setChecked(False)
+			self.cambia_sb(chlag)
 			self.buttonAll.setVisible(True)
 			self.radS1.setVisible(True)
 			self.radS2.setVisible(True)
 		if len(blen) > 2:
 			self.radS3.setVisible(True)
+		else:
+			self.radS3.setChecked(False)
 		if len(blen) > 3:
 			self.radS4.setVisible(True)
+		else:
+			self.radS4.setChecked(False)
 
-	def Sbtnstate(self, b):
+	def Sbtnstate(self, all_=True):
 		if self.pflag:
 			return
-		if b.isChecked():
-			self.cambia_sb(int(b.text()[-2]))
+		if self.radioB1.isChecked():
+			chlag = [0 for s in range(len(self.ano1))]
+		elif self.radioB2.isChecked():
+			chlag = [0 for s in range(len(self.ano2))]
+		else:
+			return
+		if all_:
+			self.radS1.setChecked(True)
+			chlag[0] = 1
+			self.radS2.setChecked(True)
+			chlag[1] = 1
+			if len(chlag) > 2:
+				self.radS3.setChecked(True)
+				chlag[2] = 1
+			if len(chlag) > 3:
+				self.radS4.setChecked(True)
+				chlag[3] = 1
+		else:
+			if self.radS1.isChecked():
+				chlag[0] = 1
+			else:
+				chlag[0] = 0
+			if self.radS2.isChecked() and self.radS2.isVisible():
+				chlag[1] = 1
+			elif self.radS2.isVisible():
+				chlag[1] = 0
+			if self.radS3.isChecked() and self.radS3.isVisible():
+				chlag[2] = 1
+			elif self.radS3.isVisible():
+				chlag[2] = 0
+			if self.radS4.isChecked() and self.radS4.isVisible():
+				chlag[3] = 1
+			elif self.radS4.isVisible():
+				chlag[3] = 0
+		self.cambia_sb(chlag)
 
-	def cambia_sb(self, idx=0):
+	def cambia_sb(self, idx):
 		if self.pflag:
 			return
 		if self.radioB1.isChecked():
@@ -153,21 +193,18 @@ class UI(QMainWindow):
 			tdown = True
 		else:
 			return
-		if idx > 0:
-			if len(txt_) > idx-1:
-				self.label_msg.setText("{}({})".format(lab_, idx))
-				self.set_idc(0)
-				self.text_chosen = [txt_[idx-1]	]
-				self.plotter2([txt_[idx-1]], tdown)
-		else:
-			self.label_msg.setText("{}(all)".format(lab_))
+		if len(txt_) != len(idx):
+			return
+		if sum(idx) > 0:
+			self.label_msg.setText("{}({})".format(lab_, idx.index(1)+1))
 			self.set_idc(0)
-			self.radS1.setChecked(False)
-			self.radS2.setChecked(False)
-			self.radS3.setChecked(False)
-			self.radS4.setChecked(False)
-			self.plotter2(txt_, tdown)
-			self.text_chosen = txt_
+			self.text_chosen = []
+			for i_, val in enumerate(idx):
+				if val > 0:
+					self.text_chosen.append(txt_[i_])
+			self.plotter2(self.text_chosen, tdown)
+		else:
+			self.text_chosen = None
 
 	def send_box(self):
 		if self.pflag:
@@ -212,18 +249,30 @@ class UI(QMainWindow):
 		if e.key() == Qt.Key_1:
 			if self.radS1.isVisible():
 				self.radS1.setChecked(True)
+				self.radS2.setChecked(False)
+				self.radS3.setChecked(False)
+				self.radS4.setChecked(False)
 		if e.key() == Qt.Key_2:
 			if self.radS2.isVisible():
 				self.radS2.setChecked(True)
+				self.radS1.setChecked(False)
+				self.radS3.setChecked(False)
+				self.radS4.setChecked(False)
 		if e.key() == Qt.Key_3:
 			if self.radS3.isVisible():
 				self.radS3.setChecked(True)
+				self.radS1.setChecked(False)
+				self.radS2.setChecked(False)
+				self.radS4.setChecked(False)
 		if e.key() == Qt.Key_4:
 			if self.radS4.isVisible():
 				self.radS4.setChecked(True)
+				self.radS1.setChecked(False)
+				self.radS2.setChecked(False)
+				self.radS3.setChecked(False)
 		if e.key() == Qt.Key_R:
 			if self.buttonAll.isVisible():
-				self.cambia_sb()
+				self.Sbtnstate(True)
 
 	def del_chosen(self):
 		if self.pflag:
