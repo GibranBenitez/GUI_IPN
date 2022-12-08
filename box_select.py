@@ -14,9 +14,7 @@ classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f",
 # init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt"
 # init_path = "D:/Pytorch/yolov5/runs/Test_DB/frames"
 init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
-init_path = "D:/Pytorch/yolov5/runs/test_bad1/bad_bboxes"
 frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
-frames_path = "F:/Datasets/IPN_hand/frames"
 random.seed(42)
 colors = [[70,70,120]]
 colors.append([230, 0, 230])
@@ -98,6 +96,22 @@ class UI(QMainWindow):
 		# Show the App
 		self.show()
 
+	def sbvis(self, blen, tdown=False):
+		self.radS1.setChecked(True)
+		if len(blen) < 2:
+			self.plotter2(blen, tdown)
+			self.text_chosen = blen
+			return
+		if len(blen) > 1:
+			self.cambia_sb(1)
+			self.buttonAll.setVisible(True)
+			self.radS1.setVisible(True)
+			self.radS2.setVisible(True)
+		if len(blen) > 2:
+			self.radS3.setVisible(True)
+		if len(blen) > 3:
+			self.radS4.setVisible(True)
+
 	def btnstate(self, b):
 		if self.pflag:
 			return
@@ -118,56 +132,11 @@ class UI(QMainWindow):
 				self.label.setPixmap(pixmap)
 				self.text_chosen = None
 
-	def sbvis(self, blen, tdown=False):
-		self.radS1.setChecked(True)
-		if len(blen) < 2:
-			self.plotter2(blen, tdown)
-			self.text_chosen = blen
-			return
-		if len(blen) > 1:
-			self.cambia_sb(1)
-			self.buttonAll.setVisible(True)
-			self.radS1.setVisible(True)
-			self.radS2.setVisible(True)
-		if len(blen) > 2:
-			self.radS3.setVisible(True)
-		if len(blen) > 3:
-			self.radS4.setVisible(True)
-
 	def Sbtnstate(self, b):
 		if self.pflag:
 			return
 		if b.isChecked():
 			self.cambia_sb(int(b.text()[-2]))
-
-	def cambia_sb(self, idx=0):
-		if self.pflag:
-			return
-		if self.radioB1.isChecked():
-			lab_ = self.radioB1.text()
-			txt_ = self.ano1
-			tdown = False
-		elif self.radioB2.isChecked():
-			lab_ = self.radioB2.text()
-			txt_ = self.ano2
-			tdown = True
-		else:
-			return
-		if idx > 0:
-			if len(txt_) > idx-1:
-				self.label_msg.setText("{}({})".format(lab_, idx))
-				self.set_idc(0)
-				self.text_chosen = [txt_[idx-1]	]
-				self.plotter2([txt_[idx-1]], tdown)
-		else:
-			self.label_msg.setText("{}(all)".format(lab_))
-			self.set_idc(0)
-			self.radS1.setChecked(False)
-			self.radS2.setChecked(False)
-			self.radS3.setChecked(False)
-			self.radS4.setChecked(False)
-			self.plotter2(txt_, tdown)
-			self.text_chosen = txt_
 
 	def send_box(self):
 		if self.pflag:
@@ -440,6 +409,35 @@ class UI(QMainWindow):
 			self.label_msg.setText("BBOX Chosen")
 			self.buttonDelete.setVisible(True)
 			self.set_idc(1)
+		
+	def cambia_sb(self, idx=0):
+		if self.pflag:
+			return
+		if self.radioB1.isChecked():
+			lab_ = self.radioB1.text()
+			txt_ = self.ano1
+			tdown = False
+		elif self.radioB2.isChecked():
+			lab_ = self.radioB2.text()
+			txt_ = self.ano2
+			tdown = True
+		else:
+			return
+		if idx > 0:
+			if len(txt_) > idx-1:
+				self.label_msg.setText("{}({})".format(lab_, idx))
+				self.set_idc(0)
+				self.plotter2([txt_[idx-1]], tdown)
+				self.text_chosen = [txt_[idx-1]	]
+		else:
+			self.label_msg.setText("{}(all)".format(lab_))
+			self.set_idc(0)
+			self.radS1.setChecked(False)
+			self.radS2.setChecked(False)
+			self.radS3.setChecked(False)
+			self.radS4.setChecked(False)
+			self.plotter2(txt_, tdown)
+			self.text_chosen = txt_
 
 	def clicker(self):
 		self.buttonSend.setVisible(True)

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QVBoxLayout, QRadioButton, QCheckBox, QLabel, QFileDialog, QShortcut
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QSpinBox, QRadioButton, QCheckBox, QLabel, QFileDialog, QShortcut
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QKeySequence, QKeyEvent
@@ -14,9 +14,9 @@ classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f",
 # init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt"
 # init_path = "D:/Pytorch/yolov5/runs/Test_DB/frames"
 init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
-init_path = "D:/Pytorch/yolov5/runs/test_bad1/bad_bboxes"
+# init_path = "D:/Pytorch/yolov5/runs/test_bad1/bad_bboxes"
 frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
-frames_path = "F:/Datasets/IPN_hand/frames"
+# frames_path = "F:/Datasets/IPN_hand/frames"
 random.seed(42)
 colors = [[70,70,120]]
 colors.append([230, 0, 230])
@@ -50,6 +50,11 @@ class UI(QMainWindow):
 		self.radS3 = self.findChild(QCheckBox, "radioSub3")
 		self.radS4 = self.findChild(QCheckBox, "radioSub4")
 
+		self.sp_H1 = self.findChild(QSpinBox, "spinBox_H1")
+		self.sp_H2 = self.findChild(QSpinBox, "spinBox_H2")
+		self.sp_W1 = self.findChild(QSpinBox, "spinBox_W1")
+		self.sp_W2 = self.findChild(QSpinBox, "spinBox_W2")
+
 		self.radS1.setVisible(False)
 		self.radS2.setVisible(False)
 		self.radS3.setVisible(False)
@@ -69,12 +74,14 @@ class UI(QMainWindow):
 		self.shortcut_close = QShortcut(QKeySequence('Ctrl+Q'), self)
 		self.shortcut_close.activated.connect(lambda: app.quit())
 
-		self.shortcut_fast = QShortcut(QKeySequence('Shift+L'), self)
-		self.shortcut_fast.activated.connect(self.play_)
-		self.shortcut_fastb = QShortcut(QKeySequence('Shift+K'), self)
-		self.shortcut_fastb.activated.connect(self.play_back)
-		self.shortcut_copyb = QShortcut(QKeySequence('Shift+Z'), self)
-		self.shortcut_copyb.activated.connect(self.copy_bbox)
+		self.shi_L = QShortcut(QKeySequence('Shift+L'), self)
+		self.shi_L.activated.connect(self.play_)
+		self.shi_K = QShortcut(QKeySequence('Shift+K'), self)
+		self.shi_K.activated.connect(self.play_back)
+		self.shi_Z = QShortcut(QKeySequence('Shift+Z'), self)
+		self.shi_Z.activated.connect(self.copy_bbox)
+		self.shi_B = QShortcut(QKeySequence('Shift+B'), self)
+		self.shi_B.activated.connect(lambda: self.change_spb('H1_0'))
 
 		# Click the dropdown box
 		self.button.clicked.connect(self.clicker)
@@ -95,8 +102,35 @@ class UI(QMainWindow):
 		self.radS4.toggled.connect(lambda: self.Sbtnstate(False))
 		self.buttonAll.clicked.connect(lambda: self.Sbtnstate(True))
 
+		self.sp_H1.textChanged.connect(lambda: self.Sstate(self.sp_H1))
+		self.sp_H2.textChanged.connect(lambda: self.Sstate(self.sp_H2))
+		self.sp_W1.textChanged.connect(lambda: self.Sstate(self.sp_W1))
+		self.sp_W2.textChanged.connect(lambda: self.Sstate(self.sp_W2))
+
 		# Show the App
 		self.show()
+
+	def change_spb(self, opt):
+		if opt == "H1_0":
+			self.sp_H1.stepBy(-2)
+		if opt == "H1_1":
+			self.sp_H1.stepBy(2)
+		if opt == "H2_0":
+			self.sp_H2.stepBy(-2)
+		if opt == "H2_1":
+			self.sp_H2.stepBy(2)
+		if opt == "W1_0":
+			self.sp_W1.stepBy(-2)
+		if opt == "W1_1":
+			self.sp_W1.stepBy(2)
+		if opt == "W2_0":
+			self.sp_W2.stepBy(-2)
+		if opt == "W2_1":
+			self.sp_W2.stepBy(2)
+
+	def Sstate(self, sp_btn):
+		self.label_msg.setText(str(sp_btn.value()))
+		# print(sp_btn.objectName())
 
 	def btnstate(self, b):
 		if self.pflag:
@@ -237,6 +271,9 @@ class UI(QMainWindow):
 			self.copy_bbox(-1)
 		if e.key() == Qt.Key_D:
 			self.del_chosen()
+
+		if e.key() == Qt.Key_B:
+			self.change_spb("H1_1")
 
 		if e.key() == Qt.Key_E:
 			self.radioNo.setChecked(True)

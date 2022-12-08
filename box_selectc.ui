@@ -129,7 +129,7 @@
      </font>
     </property>
     <property name="text">
-     <string/>
+     <string>Ta vez la venganza de un lugar o algo</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -289,6 +289,113 @@
     </property>
     <property name="text">
      <string>Delete &lt;&lt;</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox_H1">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>74</y>
+      <width>68</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="prefix">
+     <string/>
+    </property>
+    <property name="minimum">
+     <number>-460</number>
+    </property>
+    <property name="maximum">
+     <number>460</number>
+    </property>
+    <property name="singleStep">
+     <number>2</number>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox_H2">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>554</y>
+      <width>68</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="minimum">
+     <number>-460</number>
+    </property>
+    <property name="maximum">
+     <number>460</number>
+    </property>
+    <property name="singleStep">
+     <number>2</number>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox_W1">
+    <property name="geometry">
+     <rect>
+      <x>3</x>
+      <y>300</y>
+      <width>68</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="minimum">
+     <number>-620</number>
+    </property>
+    <property name="maximum">
+     <number>620</number>
+    </property>
+    <property name="singleStep">
+     <number>2</number>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox_W2">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>300</y>
+      <width>68</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="minimum">
+     <number>-620</number>
+    </property>
+    <property name="maximum">
+     <number>620</number>
+    </property>
+    <property name="singleStep">
+     <number>2</number>
     </property>
    </widget>
   </widget>
