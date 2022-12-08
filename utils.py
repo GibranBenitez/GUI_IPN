@@ -5,6 +5,26 @@ import shutil
 import cv2
 
 
+def xml_to_yolo_bbox(bbox, w, h):
+    # xmin, ymin, xmax, ymax
+    x_center = ((bbox[2] + bbox[0]) / 2) / w
+    y_center = ((bbox[3] + bbox[1]) / 2) / h
+    width = (bbox[2] - bbox[0]) / w
+    height = (bbox[3] - bbox[1]) / h
+    return [x_center, y_center, width, height]
+
+
+def yolo_to_xml_bbox(bbox, w, h):
+    # x_center, y_center width heigth
+    w_half_len = (bbox[2] * w) / 2
+    h_half_len = (bbox[3] * h) / 2
+    xmin = int((bbox[0] * w) - w_half_len)
+    ymin = int((bbox[1] * h) - h_half_len)
+    xmax = int((bbox[0] * w) + w_half_len)
+    ymax = int((bbox[1] * h) + h_half_len)
+    return [xmin, ymin, xmax, ymax]
+
+
 def plot_one_box(x, image, color=None, label=None, line_thickness=None, textdow=False):
     # Plots one bounding box on image img
     tl = line_thickness or round(0.002 * (image.shape[0] + image.shape[1]) / 2) + 1  # line/font thickness
@@ -36,12 +56,9 @@ def draw_boxes(image_path, txt_file, color_, label_=None, img_temp=True, image=N
         if staff[0] == "NO":
         	break
         lprin = label_ if single else "{}({})".format(label_, i+1)
-        x_center, y_center, w, h = float(staff[1])*width, float(staff[2])*height, float(staff[3])*width, float(staff[4])*height
-        x1 = round(x_center-w/2)
-        y1 = round(y_center-h/2)
-        x2 = round(x_center+w/2)
-        y2 = round(y_center+h/2)     
+        [x1,y1,x2,y2] = yolo_to_xml_bbox([float(staff[1]),float(staff[2]),float(staff[3]),float(staff[4])], width, height)
         plot_one_box([x1,y1,x2,y2], image, color=[s-(35*i) for s in color_], label=lprin, line_thickness=None, textdow=textdow)
+
     
     if img_temp:
         cv2.imwrite(imname+".jpg",image) 
