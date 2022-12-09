@@ -65,3 +65,22 @@ def draw_boxes(image_path, txt_file, color_, label_=None, img_temp=True, image=N
         return None
     else:
         return image
+
+def draw_change_boxes(txt_file, index_=None, value_=0):
+    label_ = "changing"
+    color_ = [203, 203, 255]
+    image = cv2.imread("temp_img2.jpg")
+    height, width, channels = image.shape
+
+    line = txt_file[0]
+    staff = line.split() 
+    [x1,y1,x2,y2] = yolo_to_xml_bbox([float(staff[1]),float(staff[2]),float(staff[3]),float(staff[4])], width, height)
+    xml_list = [x1,y1,x2,y2]
+    if index_ is not None:
+        xml_list[index_] = xml_list[index_] + value_
+
+    lprin = label_ 
+    plot_one_box(xml_list, image, color=[s for s in color_], label=lprin, line_thickness=None, textdow=True)
+
+    
+    cv2.imwrite("temp_img3.jpg",image) 

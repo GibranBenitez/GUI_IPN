@@ -6,7 +6,7 @@ from pathlib import Path
 import sys, glob, os, time, random, shutil 
 from threading import Timer
 from natsort import natsorted, os_sorted, realsorted, humansorted
-from utils import draw_boxes
+from utils import draw_boxes, draw_change_boxes
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
 				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o"]
@@ -14,9 +14,9 @@ classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f",
 # init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt"
 # init_path = "D:/Pytorch/yolov5/runs/Test_DB/frames"
 init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
-# init_path = "D:/Pytorch/yolov5/runs/test_bad1/bad_bboxes"
-frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
-# frames_path = "F:/Datasets/IPN_hand/frames"
+init_path = "D:/Pytorch/yolov5/runs/test_bad1/bad_bboxes"
+# frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
+frames_path = "F:/Datasets/IPN_hand/frames"
 random.seed(42)
 colors = [[70,70,120]]
 colors.append([230, 0, 230])
@@ -106,30 +106,57 @@ class UI(QMainWindow):
 		self.sp_H2.textChanged.connect(lambda: self.Sstate(self.sp_H2))
 		self.sp_W1.textChanged.connect(lambda: self.Sstate(self.sp_W1))
 		self.sp_W2.textChanged.connect(lambda: self.Sstate(self.sp_W2))
+		self.sp_H1.setVisible(False)
+		self.sp_H2.setVisible(False)
+		self.sp_W1.setVisible(False)
+		self.sp_W2.setVisible(False)
+		self.text_change = None
 
 		# Show the App
 		self.show()
 
 	def change_spb(self, opt):
-		if opt == "H1_0":
-			self.sp_H1.stepBy(-2)
-		if opt == "H1_1":
-			self.sp_H1.stepBy(2)
-		if opt == "H2_0":
-			self.sp_H2.stepBy(-2)
-		if opt == "H2_1":
-			self.sp_H2.stepBy(2)
-		if opt == "W1_0":
-			self.sp_W1.stepBy(-2)
-		if opt == "W1_1":
-			self.sp_W1.stepBy(2)
-		if opt == "W2_0":
-			self.sp_W2.stepBy(-2)
-		if opt == "W2_1":
-			self.sp_W2.stepBy(2)
+		if opt == "change_mod":
+			self.sp_H1.setVisible(True)
+			self.sp_H2.setVisible(True)
+			self.sp_W1.setVisible(True)
+			self.sp_W2.setVisible(True)
+			self.text_change = self.text_chosen if len(self.text_chosen) < 2 else self.text_chosen[0]
+			draw_change_boxes(self.text_change)
+			pixmap = QPixmap("temp_img3.jpg")
+			self.label.setPixmap(pixmap)
+			return
+		if self.sp_H1.isVisible():
+			if opt == "H1_0":
+				self.sp_H1.stepBy(-2)
+			if opt == "H1_1":
+				self.sp_H1.stepBy(2)
+			if opt == "H2_0":
+				self.sp_H2.stepBy(-2)
+			if opt == "H2_1":
+				self.sp_H2.stepBy(2)
+			if opt == "W1_0":
+				self.sp_W1.stepBy(-2)
+			if opt == "W1_1":
+				self.sp_W1.stepBy(2)
+			if opt == "W2_0":
+				self.sp_W2.stepBy(-2)
+			if opt == "W2_1":
+				self.sp_W2.stepBy(2)
 
 	def Sstate(self, sp_btn):
 		self.label_msg.setText(str(sp_btn.value()))
+		if sp_btn.objectName().split('_')[-1] == "H1":
+			ax = 0
+		elif sp_btn.objectName().split('_')[-1] == "W1":
+			ax = 1
+		elif sp_btn.objectName().split('_')[-1] == "H2":
+			ax = 2
+		elif sp_btn.objectName().split('_')[-1] == "W2":
+			ax = 3
+		draw_change_boxes(self.text_change, ax, sp_btn.value())
+		pixmap = QPixmap("temp_img3.jpg")
+		self.label.setPixmap(pixmap)
 		# print(sp_btn.objectName())
 
 	def btnstate(self, b):
@@ -272,8 +299,26 @@ class UI(QMainWindow):
 		if e.key() == Qt.Key_D:
 			self.del_chosen()
 
+		if e.key() == Qt.Key_X:
+			if self.sp_H1.isVisible():
+				self.change_spb("H1_1")
+			elif not self.radioNo.isVisible():
+				self.change_spb("change_mod")
+		if e.key() == Qt.Key_C:
+			if self.sp_H1.isVisible():
+				self.change_spb("H2_1")
+			elif not self.radioNo.isVisible():
+				self.change_spb("change_mod")
+		if e.key() == Qt.Key_V:
+			if self.sp_H1.isVisible():
+				self.change_spb("W1_1")
+			elif not self.radioNo.isVisible():
+				self.change_spb("change_mod")
 		if e.key() == Qt.Key_B:
-			self.change_spb("H1_1")
+			if self.sp_H1.isVisible():
+				self.change_spb("W2_1")
+			elif not self.radioNo.isVisible():
+				self.change_spb("change_mod")
 
 		if e.key() == Qt.Key_E:
 			self.radioNo.setChecked(True)
@@ -339,16 +384,22 @@ class UI(QMainWindow):
 			txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
 			img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
 			if os.path.exists(txt_path):
-				self.plotter2(self.read_txt(txt_path), True, idx=-1, img_path=img_, label_="chosen") 
+				txt_l = self.read_txt(txt_path)
+				self.plotter2(txt_l , True, idx=-1, img_path=img_, label_="chosen") 
 				self.label_msg.setText("BBOX Chosen")
 				self.buttonDelete.setVisible(True)
 				self.set_idc(1)
 			else:
-				self.plotter2(self.read_txt(txt_), True, idx=0, img_path=img_, label_=None) 
+				txt_l = self.read_txt(txt_)
+				self.plotter2(txt_l, True, idx=0, img_path=img_, label_=None) 
 				self.buttonDelete.setVisible(False)
 				self.label_msg.setText("")
 				self.set_idc(0)
 			self.label_frame.setText(os.path.basename(img_))
+			self.radioB1.setVisible(False)
+			self.radioB2.setVisible(False)
+			self.radioNo.setVisible(False)
+			self.text_chosen = txt_l
 		else:
 			self.plotter(self.i)
 
@@ -364,16 +415,22 @@ class UI(QMainWindow):
 			txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
 			img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
 			if os.path.exists(txt_path):
-				self.plotter2(self.read_txt(txt_path), True, idx=-1, img_path=img_) 
+				txt_l = self.read_txt(txt_path)
+				self.plotter2(txt_l , True, idx=-1, img_path=img_, label_="chosen") 
 				self.label_msg.setText("BBOX Chosen")
 				self.buttonDelete.setVisible(True)
 				self.set_idc(1)
 			else:
-				self.plotter2(self.read_txt(txt_), True, idx=0, img_path=img_, label_=None) 
+				txt_l = self.read_txt(txt_)
+				self.plotter2(txt_l, True, idx=0, img_path=img_, label_=None) 
 				self.buttonDelete.setVisible(False)
 				self.label_msg.setText("")
 				self.set_idc(0)
 			self.label_frame.setText(os.path.basename(img_))
+			self.radioB1.setVisible(False)
+			self.radioB2.setVisible(False)
+			self.radioNo.setVisible(False)
+			self.text_chosen = txt_l
 		else:
 			self.plotter(self.i)
 
@@ -398,6 +455,10 @@ class UI(QMainWindow):
 					self.label_msg.setText("")
 					self.set_idc(0)
 				self.label_frame.setText(os.path.basename(img_))
+				self.radioB1.setVisible(False)
+				self.radioB2.setVisible(False)
+				self.radioNo.setVisible(False)
+				self.text_chosen = self.read_txt(txt_)
 			app.processEvents()
 			if self.flag:
 				break
@@ -427,6 +488,10 @@ class UI(QMainWindow):
 					self.label_msg.setText("")
 					self.set_idc(0)
 				self.label_frame.setText(os.path.basename(img_))
+				self.radioB1.setVisible(False)
+				self.radioB2.setVisible(False)
+				self.radioNo.setVisible(False)
+				self.text_chosen = self.read_txt(txt_)
 			app.processEvents()
 			if self.flag:
 				break
@@ -480,6 +545,10 @@ class UI(QMainWindow):
 				return None
 
 	def plotter2(self, txt_, tdown=False, idx=-1, img_path="temp_img.jpg", label_="chosen"): 
+		self.sp_H1.setVisible(False)
+		self.sp_H2.setVisible(False)
+		self.sp_W1.setVisible(False)
+		self.sp_W2.setVisible(False)
 		draw_boxes(img_path, txt_, colors[idx], label_, True, None, tdown, imname="temp_img2")
 		# Open the image
 		pixmap = QPixmap("temp_img2.jpg")
@@ -492,12 +561,18 @@ class UI(QMainWindow):
 		self.buttonDelete.setVisible(False)
 		self.radioB1.setVisible(True)
 		self.radioB2.setVisible(True)
+		self.radioNo.setVisible(True)
 		self.radS1.setVisible(False)
 		self.radS2.setVisible(False)
 		self.radS3.setVisible(False)
 		self.radS4.setVisible(False)
 		self.buttonAll.setVisible(False)
 		self.radioNo.setChecked(True)
+		self.sp_H1.setVisible(False)
+		self.sp_H2.setVisible(False)
+		self.sp_W1.setVisible(False)
+		self.sp_W2.setVisible(False)
+		self.text_change = None
 		self.text_chosen = None
 
 		txt_ = self.bad_list[indx]
