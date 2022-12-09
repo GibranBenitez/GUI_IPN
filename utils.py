@@ -66,21 +66,33 @@ def draw_boxes(image_path, txt_file, color_, label_=None, img_temp=True, image=N
     else:
         return image
 
-def draw_change_boxes(txt_file, index_=None, value_=0):
+def draw_change_boxes(txt_file, index_=None, value_=0, xml_in=True):
     label_ = "changing"
     color_ = [203, 203, 255]
     image = cv2.imread("temp_img2.jpg")
-    height, width, channels = image.shape
 
-    line = txt_file[0]
-    staff = line.split() 
-    [x1,y1,x2,y2] = yolo_to_xml_bbox([float(staff[1]),float(staff[2]),float(staff[3]),float(staff[4])], width, height)
-    xml_list = [x1,y1,x2,y2]
+    if xml_in:
+    	xml_list = txt_file[0]
+    	width = txt_file[1]
+    	height = txt_file[2]
+    	t_lbl = txt_file[3]
+    else:
+    	height, width, channels = image.shape
+    	line = txt_file[0]
+    	staff = line.split() 
+    	t_lbl = staff[0]
+    	[x1,y1,x2,y2] = yolo_to_xml_bbox([float(staff[1]),float(staff[2]),float(staff[3]),float(staff[4])], width, height)
+    	xml_list = [x1,y1,x2,y2]
     if index_ is not None:
         xml_list[index_] = xml_list[index_] + value_
 
     lprin = label_ 
     plot_one_box(xml_list, image, color=[s for s in color_], label=lprin, line_thickness=None, textdow=True)
+    cv2.imwrite("temp_img3.jpg",image)
 
-    
-    cv2.imwrite("temp_img3.jpg",image) 
+    return [xml_list, width, height, t_lbl]
+
+def xml_to_yolo(xml_list):
+	[x, y, w, h] = xml_to_yolo_bbox(xml_list[0], xml_list[1], xml_list[2])
+	str_list = [xml_list[3], x, y, w, h]
+	return [' '.join([str(s) for s in str_list])]

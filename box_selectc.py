@@ -6,7 +6,7 @@ from pathlib import Path
 import sys, glob, os, time, random, shutil 
 from threading import Timer
 from natsort import natsorted, os_sorted, realsorted, humansorted
-from utils import draw_boxes, draw_change_boxes
+from utils import draw_boxes, draw_change_boxes, xml_to_yolo
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
 				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o"]
@@ -14,9 +14,9 @@ classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f",
 # init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt"
 # init_path = "D:/Pytorch/yolov5/runs/Test_DB/frames"
 init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
-init_path = "D:/Pytorch/yolov5/runs/test_bad1/bad_bboxes"
-# frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
-frames_path = "F:/Datasets/IPN_hand/frames"
+# init_path = "D:/Pytorch/yolov5/runs/test_bad1/bad_bboxes"
+frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
+# frames_path = "F:/Datasets/IPN_hand/frames"
 random.seed(42)
 colors = [[70,70,120]]
 colors.append([230, 0, 230])
@@ -80,8 +80,14 @@ class UI(QMainWindow):
 		self.shi_K.activated.connect(self.play_back)
 		self.shi_Z = QShortcut(QKeySequence('Shift+Z'), self)
 		self.shi_Z.activated.connect(self.copy_bbox)
-		self.shi_B = QShortcut(QKeySequence('Shift+B'), self)
-		self.shi_B.activated.connect(lambda: self.change_spb('H1_0'))
+		self.shi_S = QShortcut(QKeySequence('Shift+S'), self)
+		self.shi_S.activated.connect(lambda: self.change_spb('H1_0'))
+		self.shi_D = QShortcut(QKeySequence('Shift+D'), self)
+		self.shi_D.activated.connect(lambda: self.change_spb('H2_0'))
+		self.shi_X = QShortcut(QKeySequence('Shift+X'), self)
+		self.shi_X.activated.connect(lambda: self.change_spb('W1_0'))
+		self.shi_C = QShortcut(QKeySequence('Shift+C'), self)
+		self.shi_C.activated.connect(lambda: self.change_spb('W2_0'))
 
 		# Click the dropdown box
 		self.button.clicked.connect(self.clicker)
@@ -121,8 +127,8 @@ class UI(QMainWindow):
 			self.sp_H2.setVisible(True)
 			self.sp_W1.setVisible(True)
 			self.sp_W2.setVisible(True)
-			self.text_change = self.text_chosen if len(self.text_chosen) < 2 else self.text_chosen[0]
-			draw_change_boxes(self.text_change)
+			text_change = self.text_chosen if len(self.text_chosen) < 2 else self.text_chosen[0]
+			self.text_change = draw_change_boxes(text_change, xml_in=False)
 			pixmap = QPixmap("temp_img3.jpg")
 			self.label.setPixmap(pixmap)
 			return
@@ -145,19 +151,20 @@ class UI(QMainWindow):
 				self.sp_W2.stepBy(2)
 
 	def Sstate(self, sp_btn):
-		self.label_msg.setText(str(sp_btn.value()))
-		if sp_btn.objectName().split('_')[-1] == "H1":
-			ax = 0
-		elif sp_btn.objectName().split('_')[-1] == "W1":
-			ax = 1
-		elif sp_btn.objectName().split('_')[-1] == "H2":
-			ax = 2
-		elif sp_btn.objectName().split('_')[-1] == "W2":
-			ax = 3
-		draw_change_boxes(self.text_change, ax, sp_btn.value())
-		pixmap = QPixmap("temp_img3.jpg")
-		self.label.setPixmap(pixmap)
-		# print(sp_btn.objectName())
+		if self.sp_H1.isVisible():
+			self.label_msg.setText(str(sp_btn.value()))
+			if sp_btn.objectName().split('_')[-1] == "W1":
+				ax = 0
+			elif sp_btn.objectName().split('_')[-1] == "H1":
+				ax = 1
+			elif sp_btn.objectName().split('_')[-1] == "W2":
+				ax = 2
+			elif sp_btn.objectName().split('_')[-1] == "H2":
+				ax = 3
+			self.text_change = draw_change_boxes(self.text_change, ax, sp_btn.value())
+			sp_btn.setValue(0)
+			pixmap = QPixmap("temp_img3.jpg")
+			self.label.setPixmap(pixmap)
 
 	def btnstate(self, b):
 		if self.pflag:
@@ -272,16 +279,19 @@ class UI(QMainWindow):
 			return
 		txt_ = self.bad_list[self.i]
 		txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
-		self.write_txt(txt_path, self.text_chosen)
-		self.next_()
-		# self.label_msg.setText("enter")
+		if not self.sp_H1.isVisible() and os.path.exists(txt_path):
+			self.next_() 
+		if self.sp_H1.isVisible() or not os.path.exists(txt_path):
+			if self.sp_H1.isVisible() and self.text_change is not None:
+				self.text_chosen = xml_to_yolo(self.text_change)
+			if self.text_chosen is not None:
+				self.write_txt(txt_path, self.text_chosen)
+				self.next_()
 
 	def keyPressEvent(self, e):
 		# print(e.key())
-		if e.key() == 93:
+		if e.key() == 93 or e.key() == 16777252 or e.key() == Qt.Key_A or e.key() == 16777219:
 			self.send_box()
-		if e.key() == Qt.Key_S:
-			self.flag = True
 		if e.key() == Qt.Key_P:
 			self.next_()
 		if e.key() == Qt.Key_O:
@@ -296,29 +306,40 @@ class UI(QMainWindow):
 			self.back_(True)
 		if e.key() == Qt.Key_Z:
 			self.copy_bbox(-1)
-		if e.key() == Qt.Key_D:
+		if e.key() == Qt.Key_F:
 			self.del_chosen()
 
-		if e.key() == Qt.Key_X:
-			if self.sp_H1.isVisible():
-				self.change_spb("H1_1")
-			elif not self.radioNo.isVisible():
-				self.change_spb("change_mod")
-		if e.key() == Qt.Key_C:
+		if e.key() == Qt.Key_S:
+			if self.pflag:
+				self.flag = True
+			else:
+				if self.sp_H1.isVisible():
+					self.change_spb("H1_1")
+				elif not self.radioNo.isVisible():
+					self.change_spb("change_mod")
+				else:
+					self.setClean_mode(self.i)
+		if e.key() == Qt.Key_D:
 			if self.sp_H1.isVisible():
 				self.change_spb("H2_1")
 			elif not self.radioNo.isVisible():
 				self.change_spb("change_mod")
-		if e.key() == Qt.Key_V:
+			else:
+				self.setClean_mode(self.i)
+		if e.key() == Qt.Key_X:
 			if self.sp_H1.isVisible():
 				self.change_spb("W1_1")
 			elif not self.radioNo.isVisible():
 				self.change_spb("change_mod")
-		if e.key() == Qt.Key_B:
+			else:
+				self.setClean_mode(self.i)
+		if e.key() == Qt.Key_C:
 			if self.sp_H1.isVisible():
 				self.change_spb("W2_1")
 			elif not self.radioNo.isVisible():
 				self.change_spb("change_mod")
+			else:
+				self.setClean_mode(self.i)
 
 		if e.key() == Qt.Key_E:
 			self.radioNo.setChecked(True)
@@ -359,18 +380,42 @@ class UI(QMainWindow):
 	def del_chosen(self):
 		if self.pflag:
 			return
-		try:
+		if self.sp_H1.isVisible():
+			self.setClean_mode(self.i)
+		else:
 			txt_ = self.bad_list[self.i]
 			txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
-			os.remove(txt_path)
-			self.label_msg.setText("Chosen Deleted")
-			self.set_idc(2)
-			pixmap = QPixmap("temp_img.jpg")
-			self.label.setPixmap(pixmap)
-			self.text_chosen = None
+			if os.path.exists(txt_path):
+				os.remove(txt_path)
+				self.plotter(self.i)
+				self.label_msg.setText("Chosen Deleted")
+				self.set_idc(2)
+				self.text_chosen = None
+				self.buttonDelete.setVisible(False)
+			else:
+				print("NOT FOUND {}".format(os.path.basename(txt_)))
+
+	def setClean_mode(self, idx):
+		txt_ = self.bad_list[idx]
+		txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
+		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
+		if os.path.exists(txt_path):
+			txt_l = self.read_txt(txt_path)
+			self.plotter2(txt_l , True, idx=-1, img_path=img_, label_="chosen") 
+			self.label_msg.setText("BBOX Chosen")
+			self.buttonDelete.setVisible(True)
+			self.set_idc(1)
+		else:
+			txt_l = self.read_txt(txt_)
+			self.plotter2(txt_l, True, idx=0, img_path=img_, label_=None) 
 			self.buttonDelete.setVisible(False)
-		except:
-			print("NOT FOUND {}".format(os.path.basename(txt_)))
+			self.label_msg.setText("")
+			self.set_idc(0)
+		self.label_frame.setText(os.path.basename(img_))
+		self.radioB1.setVisible(False)
+		self.radioB2.setVisible(False)
+		self.radioNo.setVisible(False)
+		self.text_chosen = txt_l
 
 	def next_(self, flagg=False):
 		if self.pflag:
@@ -380,26 +425,7 @@ class UI(QMainWindow):
 		else:
 			self.i = len(self.bad_list) - 1
 		if flagg:
-			txt_ = self.bad_list[self.i]
-			txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
-			img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
-			if os.path.exists(txt_path):
-				txt_l = self.read_txt(txt_path)
-				self.plotter2(txt_l , True, idx=-1, img_path=img_, label_="chosen") 
-				self.label_msg.setText("BBOX Chosen")
-				self.buttonDelete.setVisible(True)
-				self.set_idc(1)
-			else:
-				txt_l = self.read_txt(txt_)
-				self.plotter2(txt_l, True, idx=0, img_path=img_, label_=None) 
-				self.buttonDelete.setVisible(False)
-				self.label_msg.setText("")
-				self.set_idc(0)
-			self.label_frame.setText(os.path.basename(img_))
-			self.radioB1.setVisible(False)
-			self.radioB2.setVisible(False)
-			self.radioNo.setVisible(False)
-			self.text_chosen = txt_l
+			self.setClean_mode(self.i)
 		else:
 			self.plotter(self.i)
 
@@ -411,26 +437,7 @@ class UI(QMainWindow):
 		else:
 			self.i = 0
 		if flagg:
-			txt_ = self.bad_list[self.i]
-			txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
-			img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
-			if os.path.exists(txt_path):
-				txt_l = self.read_txt(txt_path)
-				self.plotter2(txt_l , True, idx=-1, img_path=img_, label_="chosen") 
-				self.label_msg.setText("BBOX Chosen")
-				self.buttonDelete.setVisible(True)
-				self.set_idc(1)
-			else:
-				txt_l = self.read_txt(txt_)
-				self.plotter2(txt_l, True, idx=0, img_path=img_, label_=None) 
-				self.buttonDelete.setVisible(False)
-				self.label_msg.setText("")
-				self.set_idc(0)
-			self.label_frame.setText(os.path.basename(img_))
-			self.radioB1.setVisible(False)
-			self.radioB2.setVisible(False)
-			self.radioNo.setVisible(False)
-			self.text_chosen = txt_l
+			self.setClean_mode(self.i)
 		else:
 			self.plotter(self.i)
 
@@ -443,22 +450,7 @@ class UI(QMainWindow):
 			if fflag:
 				self.plotter(j)
 			else:
-				txt_ = self.bad_list[j]
-				txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
-				img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
-				if os.path.exists(txt_path):
-					self.plotter2(self.read_txt(txt_path), True, idx=-1, img_path=img_) 
-					self.label_msg.setText("BBOX Chosen")
-					self.set_idc(1)
-				else:
-					self.plotter2(self.read_txt(txt_), True, idx=0, img_path=img_, label_=None) 
-					self.label_msg.setText("")
-					self.set_idc(0)
-				self.label_frame.setText(os.path.basename(img_))
-				self.radioB1.setVisible(False)
-				self.radioB2.setVisible(False)
-				self.radioNo.setVisible(False)
-				self.text_chosen = self.read_txt(txt_)
+				self.setClean_mode(j)
 			app.processEvents()
 			if self.flag:
 				break
@@ -476,22 +468,7 @@ class UI(QMainWindow):
 			if fflag:
 				self.plotter(j)
 			else:
-				txt_ = self.bad_list[j]
-				txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
-				img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
-				if os.path.exists(txt_path):
-					self.plotter2(self.read_txt(txt_path), True, idx=-1, img_path=img_) 
-					self.label_msg.setText("BBOX Chosen")
-					self.set_idc(1)
-				else:
-					self.plotter2(self.read_txt(txt_), True, idx=0, img_path=img_, label_=None) 
-					self.label_msg.setText("")
-					self.set_idc(0)
-				self.label_frame.setText(os.path.basename(img_))
-				self.radioB1.setVisible(False)
-				self.radioB2.setVisible(False)
-				self.radioNo.setVisible(False)
-				self.text_chosen = self.read_txt(txt_)
+				self.setClean_mode(j)
 			app.processEvents()
 			if self.flag:
 				break
@@ -519,7 +496,6 @@ class UI(QMainWindow):
 					text_list.append(line_.strip())
 			return text_list
 		except:
-			# self.label_msg.setText("NO BBOX")
 			return ["NO BBOX u.u"]
 
 	def write_txt(self, txt_path, text_list=None):
@@ -530,19 +506,23 @@ class UI(QMainWindow):
 			return
 
 	def copy_bbox(self, idx=1):
-		if self.pflag:
+		if self.pflag or self.sp_H1.isVisible():
 			return
-		if self.text_chosen == None:
-			try:
-				prev_path = self.sele_path + os.path.basename(self.bad_list[self.i+idx])
-				txt_path = self.sele_path + os.path.basename(self.bad_list[self.i])
+		txt_path = self.sele_path + os.path.basename(self.bad_list[self.i])
+		if not os.path.exists(txt_path):
+			prev_path = self.sele_path + os.path.basename(self.bad_list[self.i+idx])
+			if os.path.exists(prev_path):
 				shutil.copy(prev_path, txt_path)
+				self.setClean_mode(self.i)
 				self.label_msg.setText("BBOX Copiado!!")
 				self.set_idc(2)
-				self.plotter2(self.read_txt(txt_path), True)
-			except:
+			else:
 				print("NOT FOUND {}".format(os.path.basename(self.bad_list[self.i+idx])))
-				return None
+		else:
+			if self.radioNo.isVisible():
+				self.next_()
+			else:
+				self.next_(True)
 
 	def plotter2(self, txt_, tdown=False, idx=-1, img_path="temp_img.jpg", label_="chosen"): 
 		self.sp_H1.setVisible(False)
@@ -550,9 +530,7 @@ class UI(QMainWindow):
 		self.sp_W1.setVisible(False)
 		self.sp_W2.setVisible(False)
 		draw_boxes(img_path, txt_, colors[idx], label_, True, None, tdown, imname="temp_img2")
-		# Open the image
 		pixmap = QPixmap("temp_img2.jpg")
-		# Add pic to label
 		self.label.setPixmap(pixmap)
 
 	def plotter(self, indx):
