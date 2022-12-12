@@ -1,5 +1,4 @@
-# GUI_IPN
-## First GUI for IPN hand annotation (box_selectc.py)
+# GUI for IPN hand annotation (box_selectc.py)
 
 #### General
 * **[Ctr+O]**	Open bad box frame el TXT file
@@ -30,20 +29,19 @@
 - **[S]**	Detiene la repodrudccion de frames SOLO si se estan reproduciendo
 
 #### CHANGE MODE
-- **[S]** 	Entra a CHANGE mode desde CLEAN mode, o modifica la altura del bbox seleccionado si estamos en CHANGE mode
+- **[S]** 	Entra a CHANGE mode desde CLEAN mode, o modifica la altura del bbox seleccionado si estamos en CHANGE mode. Tambien funciona para entrar a CLEAN mode desde modo anotaciones
 - **[Shf+S]** 	Modifica la altulra del bbox seleccionado si estamos en CHANGE mode
-- **[D]** 	Entra a CHANGE mode desde CLEAN mode, o modifica la altura del bbox seleccionado si estamos en CHANGE mode
+- **[D]** 	Entra a CHANGE mode desde CLEAN mode, o modifica la altura del bbox seleccionado si estamos en CHANGE mode. Tambien funciona para entrar a CLEAN mode desde modo anotaciones
 - **[Shf+D]** 	Modifica la altulra del bbox seleccionado si estamos en CHANGE mode
-- **[X]** 	Entra a CHANGE mode desde CLEAN mode, o modifica el ancho del bbox seleccionado si estamos en CHANGE mode
+- **[X]** 	Entra a CHANGE mode desde CLEAN mode, o modifica el ancho del bbox seleccionado si estamos en CHANGE mode. Tambien funciona para entrar a CLEAN mode desde modo anotaciones
 - **[Shf+X]** 	Modifica el ancho del bbox seleccionado si estamos en CHANGE mode
-- **[C]** 	Entra a CHANGE mode desde CLEAN mode, o modifica el ancho del bbox seleccionado si estamos en CHANGE mode
+- **[C]** 	Entra a CHANGE mode desde CLEAN mode, o modifica el ancho del bbox seleccionado si estamos en CHANGE mode. Tambien funciona para entrar a CLEAN mode desde modo anotaciones
 - **[Shf+C]** 	Modifica el ancho del bbox seleccionado si estamos en CHANGE mode
-- **[1]** 	Selecciona la caja 1 del bbox seleccionado para hacer cambios
-- **[2]** 	Selecciona la caja 2 del bbox seleccionado para hacer cambios
+- **[Shf+A]**   AGREGA un NUEVO bbox para modificarlo directamente en CHANGE mode. (util para agregar una segunda mano a las anotaciones)
+- **[1]** 	Selecciona la caja 1 del bbox seleccionado para hacer cambios (cuando hay 2 bboxes selected)
+- **[2]** 	Selecciona la caja 2 del bbox seleccionado para hacer cambios (cuando hay 2 bboxes selected)
 
-# Otro
-
-## First GUI for IPN hand annotation (image.py)
+# GUI for IPN hand annotation (image.py)
 
 #### Buttons
 - **BBOX BORRADO!!** 		Borrado o Inexistente [R]

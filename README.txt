@@ -52,6 +52,7 @@ box_selectc.py
 [Shf+X]	Modifica el ancho del bbox seleccionado si estamos en CHANGE mode
 [C]	Entra a CHANGE mode desde CLEAN mode, o modifica el ancho del bbox seleccionado si estamos en CHANGE mode
 [Shf+C]	Modifica el ancho del bbox seleccionado si estamos en CHANGE mode
+[Shf+A]	AGREGA un NUEVO bbox para modificarlo directamente en CHANGE mode. (util para agregar una segunda mano a las anotaciones)
 [1]	Selecciona la caja 1 del bbox seleccionado para hacer cambios
 [2]	Selecciona la caja 2 del bbox seleccionado para hacer cambios
 

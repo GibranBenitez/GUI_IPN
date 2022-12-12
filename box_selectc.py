@@ -12,7 +12,7 @@ classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f",
 				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o"]
 
 init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\bad_bboxes"
-frames_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\frames"
+frames_path = "F:\\IPN_Hand\\frames"
 # init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
 # frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
 # init_path = "D:/Pytorch/yolov5/runs/test_gordo/bad_bboxes"
@@ -74,6 +74,8 @@ class UI(QMainWindow):
 		self.shortcut_close = QShortcut(QKeySequence('Ctrl+Q'), self)
 		self.shortcut_close.activated.connect(lambda: app.quit())
 
+		self.shi_A = QShortcut(QKeySequence('Shift+A'), self)
+		self.shi_A.activated.connect(self.gen_2ndBox)
 		self.shi_L = QShortcut(QKeySequence('Shift+L'), self)
 		self.shi_L.activated.connect(self.play_)
 		self.shi_K = QShortcut(QKeySequence('Shift+K'), self)
@@ -287,6 +289,14 @@ class UI(QMainWindow):
 			if self.text_chosen is not None:
 				self.write_txt(txt_path, self.text_chosen)
 				self.next_()
+
+	def gen_2ndBox(self):
+		if self.pflag:
+			return
+		if self.sp_H1.isVisible() and len(self.text_chosen) < 2:
+			self.choose_change = 1
+			self.text_chosen = self.text_chosen + ['0 0.5 0.5 0.2 0.2']
+			self.change_spb("change_mod")
 
 	def keyPressEvent(self, e):
 		# print(e.key())
