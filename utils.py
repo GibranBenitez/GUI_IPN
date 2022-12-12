@@ -24,6 +24,22 @@ def yolo_to_xml_bbox(bbox, w, h):
     ymax = int((bbox[1] * h) + h_half_len)
     return [xmin, ymin, xmax, ymax]
 
+def bbox_limits(bbox, w, h):
+    for i, point in enumerate(bbox):
+        if point < 1:
+            bbox[i] = 0
+    # width [0] [2]
+    if bbox[0] > w-1:
+        bbox[0] = w-1
+    if bbox[2] > w-1:
+        bbox[2] = w-1
+    # height [1] [3]
+    if bbox[1] > h-1:
+        bbox[1] = h-1
+    if bbox[3] > h-1:
+        bbox[3] = h-1
+    return bbox
+
 
 def plot_one_box(x, image, color=None, label=None, line_thickness=None, textdow=False):
     # Plots one bounding box on image img
@@ -85,6 +101,7 @@ def draw_change_boxes(txt_file, index_=None, value_=0, xml_in=True):
     	xml_list = [x1,y1,x2,y2]
     if index_ is not None:
         xml_list[index_] = xml_list[index_] + value_
+        xml_list = bbox_limits(xml_list, width, height)
 
     lprin = label_ 
     plot_one_box(xml_list, image, color=[s for s in color_], label=lprin, line_thickness=None, textdow=True)
@@ -95,4 +112,4 @@ def draw_change_boxes(txt_file, index_=None, value_=0, xml_in=True):
 def xml_to_yolo(xml_list):
 	[x, y, w, h] = xml_to_yolo_bbox(xml_list[0], xml_list[1], xml_list[2])
 	str_list = [xml_list[3], x, y, w, h]
-	return [' '.join([str(s) for s in str_list])]
+	return ' '.join([str(s) for s in str_list])

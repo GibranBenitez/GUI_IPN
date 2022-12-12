@@ -11,11 +11,11 @@ from utils import draw_boxes, draw_change_boxes, xml_to_yolo
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
 				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o"]
 
-# init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt"
-# init_path = "D:/Pytorch/yolov5/runs/Test_DB/frames"
-init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
-# init_path = "D:/Pytorch/yolov5/runs/test_bad1/bad_bboxes"
-frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
+init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\bad_bboxes"
+frames_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\frames"
+# init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
+# frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
+# init_path = "D:/Pytorch/yolov5/runs/test_gordo/bad_bboxes"
 # frames_path = "F:/Datasets/IPN_hand/frames"
 random.seed(42)
 colors = [[70,70,120]]
@@ -127,7 +127,7 @@ class UI(QMainWindow):
 			self.sp_H2.setVisible(True)
 			self.sp_W1.setVisible(True)
 			self.sp_W2.setVisible(True)
-			text_change = self.text_chosen if len(self.text_chosen) < 2 else self.text_chosen[0]
+			text_change = self.text_chosen if len(self.text_chosen) < 2 else [self.text_chosen[self.choose_change]]
 			self.text_change = draw_change_boxes(text_change, xml_in=False)
 			pixmap = QPixmap("temp_img3.jpg")
 			self.label.setPixmap(pixmap)
@@ -283,7 +283,7 @@ class UI(QMainWindow):
 			self.next_() 
 		if self.sp_H1.isVisible() or not os.path.exists(txt_path):
 			if self.sp_H1.isVisible() and self.text_change is not None:
-				self.text_chosen = xml_to_yolo(self.text_change)
+				self.text_chosen[self.choose_change] = xml_to_yolo(self.text_change)
 			if self.text_chosen is not None:
 				self.write_txt(txt_path, self.text_chosen)
 				self.next_()
@@ -345,17 +345,36 @@ class UI(QMainWindow):
 			self.radioNo.setChecked(True)
 		if e.key() == Qt.Key_Q:
 			if self.radioB1.isVisible():
-				self.radioB1.setChecked(True)
+				if self.radioB1.isChecked():
+					if self.radS1.isVisible():
+						self.rotate_checked()
+				else:
+					self.radioB1.setChecked(True)
 		if e.key() == Qt.Key_W:
 			if self.radioB2.isVisible():
 				self.radioB2.setChecked(True)
+				if self.radioB2.isChecked():
+					if self.radS1.isVisible():
+						self.rotate_checked()
+				else:
+					self.radioB2.setChecked(True)
 		if e.key() == Qt.Key_1:
+			if self.sp_H1.isVisible():
+				if len(self.text_chosen) > 1:
+					self.choose_change = 0
+					self.change_spb("change_mod")
 			if self.radS1.isVisible():
 				self.radS1.setChecked(True)
 				self.radS2.setChecked(False)
 				self.radS3.setChecked(False)
 				self.radS4.setChecked(False)
 		if e.key() == Qt.Key_2:
+			if self.sp_H1.isVisible():
+				if len(self.text_chosen) > 1:
+					self.choose_change = 1
+					self.change_spb("change_mod")
+				else:
+					self.choose_change = 0
 			if self.radS2.isVisible():
 				self.radS2.setChecked(True)
 				self.radS1.setChecked(False)
@@ -376,6 +395,28 @@ class UI(QMainWindow):
 		if e.key() == Qt.Key_R:
 			if self.buttonAll.isVisible():
 				self.Sbtnstate(True)
+
+	def rotate_checked(self):
+		if self.radS2.isVisible() and self.radS1.isChecked():
+			self.radS2.setChecked(True)
+			self.radS1.setChecked(False)
+			self.radS3.setChecked(False)
+			self.radS4.setChecked(False)
+		elif self.radS3.isVisible() and self.radS2.isChecked():
+			self.radS3.setChecked(True)
+			self.radS1.setChecked(False)
+			self.radS2.setChecked(False)
+			self.radS4.setChecked(False)
+		elif self.radS4.isVisible() and self.radS3.isChecked():
+			self.radS4.setChecked(True)
+			self.radS1.setChecked(False)
+			self.radS2.setChecked(False)
+			self.radS3.setChecked(False)
+		else:
+			self.radS1.setChecked(True)
+			self.radS2.setChecked(False)
+			self.radS3.setChecked(False)
+			self.radS4.setChecked(False)
 
 	def del_chosen(self):
 		if self.pflag:
@@ -415,7 +456,12 @@ class UI(QMainWindow):
 		self.radioB1.setVisible(False)
 		self.radioB2.setVisible(False)
 		self.radioNo.setVisible(False)
+		self.radS1.setVisible(False)
+		self.radS2.setVisible(False)
+		self.radS3.setVisible(False)
+		self.radS4.setVisible(False)
 		self.text_chosen = txt_l
+		self.choose_change = 0
 
 	def next_(self, flagg=False):
 		if self.pflag:
@@ -552,6 +598,7 @@ class UI(QMainWindow):
 		self.sp_W2.setVisible(False)
 		self.text_change = None
 		self.text_chosen = None
+		self.choose_change = 0
 
 		txt_ = self.bad_list[indx]
 		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))

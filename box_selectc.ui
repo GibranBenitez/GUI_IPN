@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>870</width>
-    <height>611</height>
+    <height>623</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -129,7 +129,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Ta vez la venganza de un lugar o algo</string>
+     <string/>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -294,9 +294,9 @@
    <widget class="QSpinBox" name="spinBox_H1">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>70</y>
-      <width>68</width>
+      <x>330</x>
+      <y>62</y>
+      <width>41</width>
       <height>29</height>
      </rect>
     </property>
@@ -323,9 +323,9 @@
    <widget class="QSpinBox" name="spinBox_H2">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>560</y>
-      <width>68</width>
+      <x>330</x>
+      <y>570</y>
+      <width>41</width>
       <height>29</height>
      </rect>
     </property>
@@ -349,9 +349,9 @@
    <widget class="QSpinBox" name="spinBox_W1">
     <property name="geometry">
      <rect>
-      <x>3</x>
-      <y>300</y>
-      <width>68</width>
+      <x>0</x>
+      <y>290</y>
+      <width>41</width>
       <height>29</height>
      </rect>
     </property>
@@ -375,9 +375,9 @@
    <widget class="QSpinBox" name="spinBox_W2">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>300</y>
-      <width>68</width>
+      <x>672</x>
+      <y>290</y>
+      <width>41</width>
       <height>29</height>
      </rect>
     </property>
