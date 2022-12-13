@@ -451,7 +451,7 @@ class UI(QMainWindow):
 		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
 		if os.path.exists(txt_path):
 			txt_l = self.read_txt(txt_path)
-			self.plotter2(txt_l , True, idx=-1, img_path=img_, label_="chosen")
+			self.plotter2(txt_l , True, idx=-1, img_path=img_)
 			self.label_msg.setText("{} BBOX Chosen".format(len(txt_l)))
 			self.buttonDelete.setVisible(True)
 			self.set_idc(1)
@@ -580,7 +580,7 @@ class UI(QMainWindow):
 			else:
 				self.next_(True)
 
-	def plotter2(self, txt_, tdown=False, idx=-1, img_path="temp_img.jpg", label_="chosen"): 
+	def plotter2(self, txt_, tdown=False, idx=-1, img_path="temp_img.jpg", label_=None): 
 		self.sp_H1.setVisible(False)
 		self.sp_H2.setVisible(False)
 		self.sp_W1.setVisible(False)

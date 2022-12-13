@@ -83,8 +83,8 @@ def draw_boxes(image_path, txt_file, color_, label_=None, img_temp=True, image=N
         return image
 
 def draw_change_boxes(txt_file, index_=None, value_=0, xml_in=True):
-    label_ = "changing"
-    color_ = [203, 203, 255]
+    label_ = None
+    color_ = [20, 255, 60]
     image = cv2.imread("temp_img2.jpg")
 
     if xml_in:
