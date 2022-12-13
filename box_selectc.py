@@ -16,7 +16,7 @@ frames_path = "F:\\IPN_Hand\\frames"
 # init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
 # frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
 # init_path = "D:/Pytorch/yolov5/runs/test_gordo/bad_bboxes"
-# frames_path = "F:/Datasets/IPN_hand/frames"
+# frames_path = "E:/datasets/IPN_hand/frames"
 random.seed(42)
 colors = [[70,70,120]]
 colors.append([230, 0, 230])
@@ -276,19 +276,21 @@ class UI(QMainWindow):
 		else:
 			self.text_chosen = None
 
-	def send_box(self):
+	def send_box(self, sig_=True):
 		if self.pflag:
 			return
 		txt_ = self.bad_list[self.i]
 		txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
 		if not self.sp_H1.isVisible() and os.path.exists(txt_path):
-			self.next_() 
+			if sig_:
+				self.next_() 
 		if self.sp_H1.isVisible() or not os.path.exists(txt_path):
 			if self.sp_H1.isVisible() and self.text_change is not None:
 				self.text_chosen[self.choose_change] = xml_to_yolo(self.text_change)
 			if self.text_chosen is not None:
 				self.write_txt(txt_path, self.text_chosen)
-				self.next_()
+				if sig_:
+					self.next_()
 
 	def gen_2ndBox(self):
 		if self.pflag:
@@ -300,8 +302,10 @@ class UI(QMainWindow):
 
 	def keyPressEvent(self, e):
 		# print(e.key())
-		if e.key() == 93 or e.key() == 16777252 or e.key() == Qt.Key_A or e.key() == 16777219:
+		if e.key() == Qt.Key_A or e.key() == 16777219:
 			self.send_box()
+		if e.key() == 93 or e.key() == 16777252:
+			self.send_box(False)
 		if e.key() == Qt.Key_P:
 			self.next_()
 		if e.key() == Qt.Key_O:
