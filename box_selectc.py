@@ -362,7 +362,6 @@ class UI(QMainWindow):
 					self.radioB1.setChecked(True)
 		if e.key() == Qt.Key_W:
 			if self.radioB2.isVisible():
-				self.radioB2.setChecked(True)
 				if self.radioB2.isChecked():
 					if self.radS1.isVisible():
 						self.rotate_checked()
@@ -452,8 +451,8 @@ class UI(QMainWindow):
 		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
 		if os.path.exists(txt_path):
 			txt_l = self.read_txt(txt_path)
-			self.plotter2(txt_l , True, idx=-1, img_path=img_, label_="chosen") 
-			self.label_msg.setText("BBOX Chosen")
+			self.plotter2(txt_l , True, idx=-1, img_path=img_, label_="chosen")
+			self.label_msg.setText("{} BBOX Chosen".format(len(txt_l)))
 			self.buttonDelete.setVisible(True)
 			self.set_idc(1)
 		else:
@@ -470,6 +469,7 @@ class UI(QMainWindow):
 		self.radS2.setVisible(False)
 		self.radS3.setVisible(False)
 		self.radS4.setVisible(False)
+		self.buttonAll.setVisible(False)
 		self.text_chosen = txt_l
 		self.choose_change = 0
 
@@ -600,6 +600,10 @@ class UI(QMainWindow):
 		self.radS2.setVisible(False)
 		self.radS3.setVisible(False)
 		self.radS4.setVisible(False)
+		self.radS1.setChecked(False)
+		self.radS2.setChecked(False)
+		self.radS3.setChecked(False)
+		self.radS4.setChecked(False)
 		self.buttonAll.setVisible(False)
 		self.radioNo.setChecked(True)
 		self.sp_H1.setVisible(False)
@@ -632,8 +636,9 @@ class UI(QMainWindow):
 		self.label_frame.setText(os.path.basename(img_))
 		txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
 		if os.path.exists(txt_path):
-			self.plotter2(self.read_txt(txt_path), True)
-			self.label_msg.setText("BBOX Chosen")
+			txt_l = self.read_txt(txt_path)
+			self.plotter2(txt_l, True)
+			self.label_msg.setText("{} BBOX Chosen".format(len(txt_l)))
 			self.buttonDelete.setVisible(True)
 			self.set_idc(1)
 
