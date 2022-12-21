@@ -9,7 +9,9 @@ from natsort import natsorted, os_sorted, realsorted, humansorted
 from utils import draw_boxes, draw_change_boxes, xml_to_yolo
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
-				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o"]
+				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", ""]
+fin_mode = True
+# fin_mode = False
 
 init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\bad_bboxes"
 frames_path = "F:\\IPN_Hand\\frames"
@@ -17,11 +19,20 @@ frames_path = "F:\\IPN_Hand\\frames"
 # frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
 # init_path = "D:/Pytorch/yolov5/runs/test_gordo/bad_bboxes"
 # frames_path = "E:/datasets/IPN_hand/frames"
+
 random.seed(42)
+colorsl = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(classes_id))]
+colorsl.append([240, 240, 240])
 colors = [[70,70,120]]
 colors.append([230, 0, 230])
 colors.append([230, 230, 0])
 colors.append([0, 250, 250])
+if fin_mode:
+	txt_folder = "final_annot"
+	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
+	init_path = "D:/Pytorch/yolov5/runs/test_gordo/final_annot"
+else:
+	txt_folder = "selected_boxes"
 
 
 class UI(QMainWindow):
@@ -42,6 +53,10 @@ class UI(QMainWindow):
 		self.buttonDelete = self.findChild(QPushButton, "pushButton_Del")
 		self.buttonAll = self.findChild(QPushButton, "pushButton_All")
 		self.label = self.findChild(QLabel, "label")
+		self.clabel = self.findChild(QLabel, "label_color")
+		self.clabelt = self.findChild(QLabel, "label_ctext")
+		self.set_idcl()
+
 		self.radioB1 = self.findChild(QRadioButton, "radioBox1")
 		self.radioB2 = self.findChild(QRadioButton, "radioBox2")
 		self.radioNo = self.findChild(QRadioButton, "radioNone")
@@ -455,12 +470,14 @@ class UI(QMainWindow):
 		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
 		if os.path.exists(txt_path):
 			txt_l = self.read_txt(txt_path)
+			self.set_idcl(int(txt_l[0].split(" ")[0]))
 			self.plotter2(txt_l , True, idx=-1, img_path=img_)
 			self.label_msg.setText("{} BBOX Chosen".format(len(txt_l)))
 			self.buttonDelete.setVisible(True)
 			self.set_idc(1)
 		else:
 			txt_l = self.read_txt(txt_)
+			self.set_idcl()
 			self.plotter2(txt_l, True, idx=0, img_path=img_, label_=None) 
 			self.buttonDelete.setVisible(False)
 			self.label_msg.setText("")
@@ -541,6 +558,12 @@ class UI(QMainWindow):
 		clrs = [[240,240,240],[119,197,197],[119,119,140]]
 		id_color = clrs[idx]
 		self.label_msg.setStyleSheet("background-color: rgb({},{},{})".format(id_color[2], id_color[1], id_color[0]))
+
+	def set_idcl(self, idx=-1):
+		id_color = colorsl[idx]
+		self.clabelt.setText(classes_id[idx])
+		self.clabelt.setStyleSheet("background-color: rgb(240,240,240); color: rgb({},{},{})".format(id_color[2], id_color[1], id_color[0]))
+		self.clabel.setStyleSheet("background-color: rgb({},{},{})".format(id_color[2], id_color[1], id_color[0]))
 
 	def read_txt(self, patho, namae=None):
 		if namae is not None:
@@ -641,6 +664,7 @@ class UI(QMainWindow):
 		txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
 		if os.path.exists(txt_path):
 			txt_l = self.read_txt(txt_path)
+			self.set_idcl(int(txt_l[0].split(" ")[0]))
 			self.plotter2(txt_l, True)
 			self.label_msg.setText("{} BBOX Chosen".format(len(txt_l)))
 			self.buttonDelete.setVisible(True)
@@ -661,7 +685,8 @@ class UI(QMainWindow):
 		self.ano1_path = "{}/ipn_11c/{}/".format(Path(iPath).parents[2], txt_path.split('/')[-1])
 		self.ano2_path = "{}/ipn_prune4/{}/".format(Path(iPath).parents[2], txt_path.split('/')[-1])
 
-		self.sele_path = "{}/selected_boxes/{}/".format(Path(iPath).parents[2], txt_path.split('/')[-1])
+		self.sele_path = "{}/{}/{}/".format(Path(iPath).parents[2], txt_folder, txt_path.split('/')[-1])
+		# self.sele_path = "{}/anotations/{}/".format(Path(iPath).parents[2], txt_path.split('/')[-1])
 		if not os.path.exists(self.sele_path):
 			os.makedirs(self.sele_path)
 

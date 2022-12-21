@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>870</width>
-    <height>623</height>
+    <width>915</width>
+    <height>652</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <widget class="QPushButton" name="pushButton_Enter">
     <property name="geometry">
      <rect>
-      <x>690</x>
+      <x>749</x>
       <y>480</y>
       <width>141</width>
       <height>41</height>
@@ -39,8 +39,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>90</y>
+      <x>58</x>
+      <y>100</y>
       <width>640</width>
       <height>480</height>
      </rect>
@@ -60,7 +60,7 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>700</x>
+      <x>759</x>
       <y>324</y>
       <width>141</width>
       <height>141</height>
@@ -113,7 +113,7 @@
    <widget class="QLabel" name="label_frame">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>78</x>
       <y>20</y>
       <width>561</width>
       <height>51</height>
@@ -138,10 +138,10 @@
    <widget class="QLabel" name="label_msg">
     <property name="geometry">
      <rect>
-      <x>600</x>
+      <x>659</x>
       <y>20</y>
       <width>241</width>
-      <height>61</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="font">
@@ -163,7 +163,7 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>710</x>
+      <x>769</x>
       <y>90</y>
       <width>121</width>
       <height>41</height>
@@ -185,7 +185,7 @@
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>719</x>
+      <x>778</x>
       <y>140</y>
       <width>77</width>
       <height>161</height>
@@ -250,7 +250,7 @@
    <widget class="QPushButton" name="pushButton_All">
     <property name="geometry">
      <rect>
-      <x>780</x>
+      <x>839</x>
       <y>151</y>
       <width>51</width>
       <height>141</height>
@@ -272,7 +272,7 @@
    <widget class="QPushButton" name="pushButton_Del">
     <property name="geometry">
      <rect>
-      <x>700</x>
+      <x>759</x>
       <y>532</y>
       <width>121</width>
       <height>41</height>
@@ -294,8 +294,8 @@
    <widget class="QSpinBox" name="spinBox_H1">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>62</y>
+      <x>358</x>
+      <y>72</y>
       <width>41</width>
       <height>29</height>
      </rect>
@@ -323,8 +323,8 @@
    <widget class="QSpinBox" name="spinBox_H2">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>570</y>
+      <x>358</x>
+      <y>580</y>
       <width>41</width>
       <height>29</height>
      </rect>
@@ -349,8 +349,8 @@
    <widget class="QSpinBox" name="spinBox_W1">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>290</y>
+      <x>20</x>
+      <y>300</y>
       <width>41</width>
       <height>29</height>
      </rect>
@@ -375,8 +375,8 @@
    <widget class="QSpinBox" name="spinBox_W2">
     <property name="geometry">
      <rect>
-      <x>672</x>
-      <y>290</y>
+      <x>700</x>
+      <y>300</y>
       <width>41</width>
       <height>29</height>
      </rect>
@@ -398,13 +398,69 @@
      <number>2</number>
     </property>
    </widget>
+   <widget class="QLabel" name="label_color">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>70</y>
+      <width>721</width>
+      <height>541</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_ctext">
+    <property name="geometry">
+     <rect>
+      <x>36</x>
+      <y>590</y>
+      <width>211</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>19</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+      <kerning>true</kerning>
+     </font>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <zorder>label_color</zorder>
+   <zorder>pushButton_Enter</zorder>
+   <zorder>label</zorder>
+   <zorder>verticalLayoutWidget</zorder>
+   <zorder>label_frame</zorder>
+   <zorder>pushButton</zorder>
+   <zorder>verticalLayoutWidget_2</zorder>
+   <zorder>pushButton_All</zorder>
+   <zorder>pushButton_Del</zorder>
+   <zorder>spinBox_H1</zorder>
+   <zorder>spinBox_H2</zorder>
+   <zorder>spinBox_W1</zorder>
+   <zorder>spinBox_W2</zorder>
+   <zorder>label_msg</zorder>
+   <zorder>label_ctext</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>870</width>
+     <width>915</width>
      <height>21</height>
     </rect>
    </property>

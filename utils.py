@@ -1,8 +1,9 @@
 # utils.py
-import os
+import os, pdb, glob
 import random
 import shutil
 import cv2
+import numpy as np
 
 
 def xml_to_yolo_bbox(bbox, w, h):
@@ -109,3 +110,112 @@ def xml_to_yolo(xml_list):
 	[x, y, w, h] = xml_to_yolo_bbox(xml_list[0], xml_list[1], xml_list[2])
 	str_list = [xml_list[3], x, y, w, h]
 	return ' '.join([str(s) for s in str_list])
+
+def read_txt(patho, namae=None):
+    if namae is not None:
+        txt_path = os.path.join(patho, namae)
+    else:
+        txt_path = patho
+    try:
+        my_file = open(txt_path, "r")
+        dlab = my_file.readlines()
+        text_list = []
+        for line_ in dlab:
+            if len(line_.split()) > 2:
+                text_list.append(line_.strip())
+        return text_list
+    except:
+        return ["NO BBOX u.u"]
+
+def write_txt(txt_path, text_list=None):
+    if text_list is not None:
+        out_file = open(txt_path, 'w')
+        out_file.write('\n'.join(text_list))    
+    else:
+        print("***ERROR writing the txt file***")
+        return
+
+def mix_box(anot_box, sele_box):
+    if len(anot_box) < len(sele_box):
+        anot_box = [anot_box[0]]*len(sele_box)
+    fin_box = sele_box
+    for i, sele_line in enumerate(sele_box):
+        sele_vals = sele_line.split(" ")
+        anot_line = anot_box[i]
+        anot_vals = anot_line.split(" ")
+        sele_vals[0] = anot_vals[0]
+        fin_box[i] = ' '.join(sele_vals)
+    return fin_box
+
+def find_SE(txt_path_list):
+    anot_list = glob.glob(txt_path_list + "/*.txt")
+    list_ids = []
+    for anot_txt in anot_list:
+        txt_l = read_txt(anot_txt)
+        list_ids.append(int(txt_l[0].split(" ")[0]))
+    instances = []
+    ids_all = []
+    for i, idx in enumerate(list_ids):
+        if i < 1:
+            s = 0
+            f = 1
+            continue
+        if idx != list_ids[i-1]:
+            e = i-1
+            instances.append([list_ids[i-1], s, e, f])
+            ids_all.append(list_ids[i-1])
+            s = i
+            f = 1
+        else:
+            f += 1
+    if f < 2:
+        e = s
+    else:
+        e = i
+    instances.append([list_ids[i], s, e, f])
+    ids_all.append(list_ids[i-1])
+    values, counts = np.unique(ids_all, return_counts=True)
+    ids_unique = values.tolist()
+    ids_counts = counts.tolist()
+    # pdb.set_trace()
+
+if __name__ == "__main__":
+
+    sepOS = '\\'    # Windows
+    # sepOS = '/'     # Ubuntu
+    # anot_path = 'D:/Pytorch/yolov5/runs/test_gordo/anotations'
+    # sele_path = 'D:/Pytorch/yolov5/runs/test_gordo/selected_boxes'
+    # fin_path = 'D:/Pytorch/yolov5/runs/test_gordo/final_annot'
+    anot_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\anotations'
+    sele_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\selected_boxes'
+    fin_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot'
+
+    all_folders = glob.glob(anot_path + "/*")
+    for folder_a in all_folders:
+        folder_ = folder_a.split(sepOS)[-1]
+        print("  Generating final annots of {}...".format(folder_))
+        if not os.path.exists(os.path.join(fin_path, folder_)):
+            os.makedirs(os.path.join(fin_path, folder_))
+        anot_list = glob.glob(folder_a + "/*.txt")
+        cnt = 0
+        cntf = 0
+
+        for anot_txt in anot_list:
+            txt_ = anot_txt.split(sepOS)[-1]
+            sele_txt = os.path.join(sele_path, folder_, txt_)
+            fin_txt = os.path.join(fin_path, folder_, txt_)
+            if os.path.exists(fin_txt):
+                cntf += 1
+                continue
+
+            if os.path.exists(sele_txt):
+                sele_box = read_txt(sele_txt)
+                anot_box = read_txt(anot_txt)
+                final_box = mix_box(anot_box, sele_box)
+                write_txt(fin_txt, final_box)
+                cnt += 1
+                # pdb.set_trace()
+            else:
+                shutil.copy(anot_txt, fin_txt)
+        print("     {}/{} selected bboxes ({} there)".format(cnt, len(anot_list), cntf))
+        # find_SE(os.path.join(fin_path, folder_))
