@@ -153,30 +153,34 @@ def mix_box(anot_box, sele_box):
 def find_SE(txt_path_list):
     anot_list = glob.glob(txt_path_list + "/*.txt")
     list_ids = []
+    frame_ids = []
     for anot_txt in anot_list:
         txt_l = read_txt(anot_txt)
+        frame_ids.append(int(anot_txt.split(".txt")[0].split("_")[-1]))
         list_ids.append(int(txt_l[0].split(" ")[0]))
     instances = []
     ids_all = []
     for i, idx in enumerate(list_ids):
         if i < 1:
-            s = 0
+            s = frame_ids[0]
+            s_i = 0
             f = 1
             continue
         if idx != list_ids[i-1]:
-            e = i-1
-            instances.append([list_ids[i-1], s, e, f])
+            e = frame_ids[i-1]
+            instances.append([list_ids[i-1], s, e, f, s_i])
             ids_all.append(list_ids[i-1])
-            s = i
+            s = frame_ids[i]
+            s_i = i
             f = 1
         else:
             f += 1
     if f < 2:
         e = s
     else:
-        e = i
-    instances.append([list_ids[i], s, e, f])
-    ids_all.append(list_ids[i-1])
+        e = frame_ids[i]
+    instances.append([list_ids[i], s, e, f, s_i])
+    ids_all.append(list_ids[i])
     values, counts = np.unique(ids_all, return_counts=True)
     uniq_cnt = list(range(len(classes_id)))
     for idx, cnt in zip(values.tolist(), counts.tolist()):

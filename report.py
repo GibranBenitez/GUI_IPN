@@ -210,8 +210,8 @@ class UI_report(QMainWindow):
 	def btnstate(self, b):
 		if b.isChecked():
 			b_idx = int(b.objectName().split('_')[-1])
-			self.i = self.instances[b_idx]
-			self.button.setText("Show frame: " + str(self.i))
+			self.i = self.instances[b_idx][0]
+			self.button.setText("Show frame: " + str(self.instances[b_idx][1]))
 
 	def clicker(self, MainWindow):
 		# fpath = QFileDialog.getExistingDirectory(self, "Select Directory", "D:\\") D:\Pytorch\yolov5\runs\4CM11_24_L_#61
@@ -227,9 +227,9 @@ class UI_report(QMainWindow):
 		self.lb14.setStyleSheet("color: rgb(0,0,185)")
 		self.instances = []
 		for i, insta in enumerate(inst):
-			idx, s, e, f = insta
+			idx, s, e, f, s_i = insta
 			self.set_radio(i, idx, '{:04d}'.format(s), '{:04d}'.format(e), f)
-			self.instances.append(s)
+			self.instances.append([s_i, s])
 		for idx_, cnt in zip(range(len(classes_id)), unique):
 			self.set_label(idx_, cnt)
 
