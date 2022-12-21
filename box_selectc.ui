@@ -188,7 +188,7 @@
       <x>778</x>
       <y>140</y>
       <width>77</width>
-      <height>161</height>
+      <height>168</height>
      </rect>
     </property>
     <property name="font">
@@ -439,6 +439,28 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_rep">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>580</y>
+      <width>141</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+      <underline>false</underline>
+     </font>
+    </property>
+    <property name="text">
+     <string>Vid Report</string>
+    </property>
+   </widget>
    <zorder>label_color</zorder>
    <zorder>pushButton_Enter</zorder>
    <zorder>label</zorder>
@@ -454,6 +476,7 @@
    <zorder>spinBox_W2</zorder>
    <zorder>label_msg</zorder>
    <zorder>label_ctext</zorder>
+   <zorder>pushButton_rep</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -461,7 +484,7 @@
      <x>0</x>
      <y>0</y>
      <width>915</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

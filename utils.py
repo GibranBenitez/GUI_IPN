@@ -5,6 +5,9 @@ import shutil
 import cv2
 import numpy as np
 
+classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
+                "G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o"]
+random.seed(42)
 
 def xml_to_yolo_bbox(bbox, w, h):
     # xmin, ymin, xmax, ymax
@@ -50,13 +53,13 @@ def plot_one_box(x, image, color=None, label=None, line_thickness=None, textdow=
         tf = max(tl - 1, 1)  # font thickness
         t_size = cv2.getTextSize(label, 0, fontScale=tl / 3, thickness=tf)[0]
         if textdow:
-        	c1l = c1[0], c2[1]
-        	c2l = c1[0] + t_size[0], c2[1] + t_size[1] + 3
-        	lpos = t_size[1]
+            c1l = c1[0], c2[1]
+            c2l = c1[0] + t_size[0], c2[1] + t_size[1] + 3
+            lpos = t_size[1]
         else:
-        	c1l = c1
-        	c2l = c1[0] + t_size[0], c1[1] - t_size[1] - 3
-        	lpos = -2
+            c1l = c1
+            c2l = c1[0] + t_size[0], c1[1] - t_size[1] - 3
+            lpos = -2
         cv2.rectangle(image, c1l, c2l, color, -1, cv2.LINE_AA)  # filled
         cv2.putText(image, label, (c1l[0], c1l[1] + lpos), 0, tl / 3, [0, 0, 0], thickness=tf, lineType=cv2.LINE_AA)
 
@@ -69,7 +72,7 @@ def draw_boxes(image_path, txt_file, color_, label_=None, img_temp=True, image=N
     for i, line in enumerate(txt_file):
         staff = line.split() 
         if staff[0] == "NO":
-        	break
+            break
         lprin = label_ if single else "{}({})".format(label_, i+1)
         [x1,y1,x2,y2] = yolo_to_xml_bbox([float(staff[1]),float(staff[2]),float(staff[3]),float(staff[4])], width, height)
         plot_one_box([x1,y1,x2,y2], image, color=[s-(35*i) for s in color_], label=lprin, line_thickness=None, textdow=textdow)
@@ -85,17 +88,17 @@ def draw_change_boxes(txt_file, index_=None, value_=0, xml_in=True):
     image = cv2.imread("temp_img2.jpg")
 
     if xml_in:
-    	xml_list = txt_file[0]
-    	width = txt_file[1]
-    	height = txt_file[2]
-    	t_lbl = txt_file[3]
+        xml_list = txt_file[0]
+        width = txt_file[1]
+        height = txt_file[2]
+        t_lbl = txt_file[3]
     else:
-    	height, width, channels = image.shape
-    	line = txt_file[0]
-    	staff = line.split() 
-    	t_lbl = staff[0]
-    	[x1,y1,x2,y2] = yolo_to_xml_bbox([float(staff[1]),float(staff[2]),float(staff[3]),float(staff[4])], width, height)
-    	xml_list = [x1,y1,x2,y2]
+        height, width, channels = image.shape
+        line = txt_file[0]
+        staff = line.split() 
+        t_lbl = staff[0]
+        [x1,y1,x2,y2] = yolo_to_xml_bbox([float(staff[1]),float(staff[2]),float(staff[3]),float(staff[4])], width, height)
+        xml_list = [x1,y1,x2,y2]
     if index_ is not None:
         xml_list[index_] = xml_list[index_] + value_
         xml_list = bbox_limits(xml_list, width, height)
@@ -107,9 +110,9 @@ def draw_change_boxes(txt_file, index_=None, value_=0, xml_in=True):
     return [xml_list, width, height, t_lbl]
 
 def xml_to_yolo(xml_list):
-	[x, y, w, h] = xml_to_yolo_bbox(xml_list[0], xml_list[1], xml_list[2])
-	str_list = [xml_list[3], x, y, w, h]
-	return ' '.join([str(s) for s in str_list])
+    [x, y, w, h] = xml_to_yolo_bbox(xml_list[0], xml_list[1], xml_list[2])
+    str_list = [xml_list[3], x, y, w, h]
+    return ' '.join([str(s) for s in str_list])
 
 def read_txt(patho, namae=None):
     if namae is not None:
@@ -175,23 +178,24 @@ def find_SE(txt_path_list):
     instances.append([list_ids[i], s, e, f])
     ids_all.append(list_ids[i-1])
     values, counts = np.unique(ids_all, return_counts=True)
-    ids_unique = values.tolist()
-    ids_counts = counts.tolist()
-    # pdb.set_trace()
+    uniq_cnt = list(range(len(classes_id)))
+    for idx, cnt in zip(values.tolist(), counts.tolist()):
+        uniq_cnt[idx] = cnt
+    return [instances, uniq_cnt]
 
 if __name__ == "__main__":
 
     sepOS = '\\'    # Windows
     # sepOS = '/'     # Ubuntu
+    anot_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\anotations'
+    sele_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\selected_boxes'
+    fin_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot'
     # anot_path = 'D:/Pytorch/yolov5/runs/test_gordo/anotations'
     # sele_path = 'D:/Pytorch/yolov5/runs/test_gordo/selected_boxes'
     # fin_path = 'D:/Pytorch/yolov5/runs/test_gordo/final_annot'
     # anot_path = 'D:/Pytorch/YOLOv5/anotations'
     # sele_path = 'D:/Pytorch/YOLOv5/selected_boxes'
     # fin_path = 'D:/Pytorch/YOLOv5/final_annot'
-    anot_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\anotations'
-    sele_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\selected_boxes'
-    fin_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot'
 
     all_folders = glob.glob(anot_path + "/*")
     for folder_a in all_folders:
@@ -221,4 +225,4 @@ if __name__ == "__main__":
             else:
                 shutil.copy(anot_txt, fin_txt)
         print("     {}/{} selected bboxes ({} there)".format(cnt, len(anot_list), cntf))
-        # find_SE(os.path.join(fin_path, folder_))
+        find_SE(os.path.join(fin_path, folder_))

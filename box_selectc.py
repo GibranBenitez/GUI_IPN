@@ -6,19 +6,30 @@ from pathlib import Path
 import sys, glob, os, time, random, shutil 
 from threading import Timer
 from natsort import natsorted, os_sorted, realsorted, humansorted
-from utils import draw_boxes, draw_change_boxes, xml_to_yolo
+from utils import draw_boxes, draw_change_boxes, xml_to_yolo, find_SE
+from report import UI_report
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
 				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", ""]
 fin_mode = True
 # fin_mode = False
-
-init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\bad_bboxes"
 frames_path = "F:\\IPN_Hand\\frames"
-# init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
 # frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
-# init_path = "D:/Pytorch/yolov5/runs/test_gordo/bad_bboxes"
 # frames_path = "E:/datasets/IPN_hand/frames"
+# frames_path = "D:/Pytorch/YOLOv5/frames"
+
+if fin_mode:
+	txt_folder = "final_annot"
+	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
+	# init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
+	# init_path = "D:/Pytorch/yolov5/runs/test_gordo/final_annot"
+	# init_path = "D:/Pytorch/YOLOv5/final_annot"
+else:
+	txt_folder = "selected_boxes"
+	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\bad_bboxes"
+	# init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
+	# init_path = "D:/Pytorch/yolov5/runs/test_gordo/bad_bboxes"
+	# init_path = "D:/Pytorch/YOLOv5/bad_bboxes"
 
 random.seed(42)
 colorsl = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(classes_id))]
@@ -27,13 +38,6 @@ colors = [[70,70,120]]
 colors.append([230, 0, 230])
 colors.append([230, 230, 0])
 colors.append([0, 250, 250])
-if fin_mode:
-	txt_folder = "final_annot"
-	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
-	init_path = "D:/Pytorch/yolov5/runs/test_gordo/final_annot"
-else:
-	txt_folder = "selected_boxes"
-
 
 class UI(QMainWindow):
 	def __init__(self):
@@ -52,6 +56,7 @@ class UI(QMainWindow):
 		self.buttonSend = self.findChild(QPushButton, "pushButton_Enter")
 		self.buttonDelete = self.findChild(QPushButton, "pushButton_Del")
 		self.buttonAll = self.findChild(QPushButton, "pushButton_All")
+		self.buttonReport = self.findChild(QPushButton, "pushButton_rep")
 		self.label = self.findChild(QLabel, "label")
 		self.clabel = self.findChild(QLabel, "label_color")
 		self.clabelt = self.findChild(QLabel, "label_ctext")
@@ -75,6 +80,8 @@ class UI(QMainWindow):
 		self.radS3.setVisible(False)
 		self.radS4.setVisible(False)
 		self.buttonAll.setVisible(False)
+		self.buttonReport.setVisible(False)
+		self.buttonReport.setStyleSheet("background-color: rgb(120,120,200)")
 		self.buttonSend.setVisible(False)
 		self.radioB1.setVisible(False)
 		self.radioB1.setStyleSheet("color: rgb(185,0,185)")
@@ -91,6 +98,10 @@ class UI(QMainWindow):
 
 		self.shi_A = QShortcut(QKeySequence('Shift+A'), self)
 		self.shi_A.activated.connect(self.gen_2ndBox)
+		self.shi_P = QShortcut(QKeySequence('Shift+P'), self)
+		self.shi_P.activated.connect(lambda: self.play_(True))
+		self.shi_O = QShortcut(QKeySequence('Shift+O'), self)
+		self.shi_O.activated.connect(lambda: self.play_back(True))
 		self.shi_L = QShortcut(QKeySequence('Shift+L'), self)
 		self.shi_L.activated.connect(self.play_)
 		self.shi_K = QShortcut(QKeySequence('Shift+K'), self)
@@ -110,6 +121,7 @@ class UI(QMainWindow):
 		self.button.clicked.connect(self.clicker)
 		self.buttonSend.clicked.connect(self.send_box)
 		self.buttonDelete.clicked.connect(self.del_chosen)
+		self.buttonReport.clicked.connect(self.open_rep)
 		self.buttonSend.setAutoDefault(True)
 		self.radioNo.setChecked(True)
 		self.radS1.setChecked(True)
@@ -326,9 +338,9 @@ class UI(QMainWindow):
 		if e.key() == Qt.Key_O:
 			self.back_()
 		if e.key() == Qt.Key_M:
-			self.play_(True)
+			self.open_rep()
 		if e.key() == Qt.Key_N:
-			self.play_back(True)
+			self.close_rep()
 		if e.key() == Qt.Key_L:
 			self.next_(True)
 		if e.key() == Qt.Key_K:
@@ -541,6 +553,7 @@ class UI(QMainWindow):
 			return
 		self.flag = False
 		self.pflag = True
+		j = 0
 		for j in range(self.i, 0, -1):
 			if fflag:
 				self.plotter(j)
@@ -632,6 +645,7 @@ class UI(QMainWindow):
 		self.radS3.setChecked(False)
 		self.radS4.setChecked(False)
 		self.buttonAll.setVisible(False)
+		self.buttonReport.setVisible(True)
 		self.radioNo.setChecked(True)
 		self.sp_H1.setVisible(False)
 		self.sp_H2.setVisible(False)
@@ -696,6 +710,15 @@ class UI(QMainWindow):
 		self.i = self.bad_list.index(iPath.replace('\\', '/'))
 
 		self.plotter(self.i)
+
+	def open_rep(self):
+		inst, uniq = find_SE(self.sele_path)
+		self.report_win = UI_report(self)
+		self.report_win.get_ins(inst, uniq)
+		self.report_win.show()
+
+	def close_rep(self):
+		self.report_win.close()
 
 if __name__ == "__main__":
 	# Initialize the app
