@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>718</width>
-    <height>840</height>
+    <width>717</width>
+    <height>829</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Report</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>26</x>
-      <y>112</y>
+      <y>125</y>
       <width>231</width>
       <height>581</height>
      </rect>
@@ -227,6 +227,23 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QLabel" name="lb_15">
+       <property name="font">
+        <font>
+         <pointsize>15</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>   Total:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget_2">
@@ -234,7 +251,7 @@
      <rect>
       <x>266</x>
       <y>10</y>
-      <width>201</width>
+      <width>221</width>
       <height>781</height>
      </rect>
     </property>
@@ -525,9 +542,9 @@
    <widget class="QWidget" name="verticalLayoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>486</x>
+      <x>488</x>
       <y>10</y>
-      <width>201</width>
+      <width>221</width>
       <height>781</height>
      </rect>
     </property>
@@ -819,7 +836,7 @@
     <property name="geometry">
      <rect>
       <x>25</x>
-      <y>710</y>
+      <y>723</y>
       <width>211</width>
       <height>41</height>
      </rect>
@@ -836,8 +853,8 @@
    <widget class="QLabel" name="lb_14">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>60</y>
+      <x>40</x>
+      <y>73</y>
       <width>181</width>
       <height>44</height>
      </rect>
@@ -853,13 +870,37 @@
      <string>Video Report:</string>
     </property>
    </widget>
+   <widget class="QLabel" name="lb_t">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>23</y>
+      <width>251</width>
+      <height>44</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>1CM1_1_R_#217</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>718</width>
+     <width>717</width>
      <height>26</height>
     </rect>
    </property>

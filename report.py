@@ -25,6 +25,7 @@ class UI_report(QMainWindow):
 		# Define our widgets
 		self.button = self.findChild(QPushButton, "pb_1")
 		
+		self.lbt = self.findChild(QLabel, "lb_t")
 		self.lb0 = self.findChild(QLabel, "lb_0")
 		self.lb1 = self.findChild(QLabel, "lb_1")
 		self.lb2 = self.findChild(QLabel, "lb_2")
@@ -40,6 +41,7 @@ class UI_report(QMainWindow):
 		self.lb12 = self.findChild(QLabel, "lb_12")
 		self.lb13 = self.findChild(QLabel, "lb_13")
 		self.lb14 = self.findChild(QLabel, "lb_14")
+		self.lb15 = self.findChild(QLabel, "lb_15")
 
 		self.rb0 = self.findChild(QRadioButton, "rb_0")
 		self.rb1 = self.findChild(QRadioButton, "rb_1")
@@ -195,13 +197,14 @@ class UI_report(QMainWindow):
 		self.rb44.toggled.connect(lambda: self.btnstate(self.rb44))
 		self.rb45.toggled.connect(lambda: self.btnstate(self.rb45))
 		self.button.clicked.connect(lambda: self.clicker(MainWindow))
+		self.MainWindow = MainWindow
 
 		# Show the App
 		self.show()
 
 	def keyPressEvent(self, e):
 		if e.key() == Qt.Key_Q:
-			self.flag = True
+			self.clicker(self.MainWindow)
 		# if e.key() == Qt.Key_1:
 		# 	self.cambia_class(1)
 		# if e.key() == Qt.Key_2:
@@ -221,19 +224,65 @@ class UI_report(QMainWindow):
 		self.hide()
 		MainWindow.setClean_mode(self.i)
 
-	def get_ins(self, inst, unique):
+	def get_ins(self, inst, unique, vid_name):
 		self.i = 0
+		self.vid_name = vid_name
 		self.button.setText("Show frame: " + str(self.i))
 		self.lb14.setStyleSheet("color: rgb(0,0,185)")
+		self.lb15.setStyleSheet("color: rgb(0,0,185)")
+		self.lb15.setText("Total: [{}] ({}) ".format(len(inst), sum(unique)))
+		self.lbt.setText(vid_name)
+		self.lbt.setStyleSheet("background-color: rgb(150,200,255)")
 		self.instances = []
 		for i, insta in enumerate(inst):
 			idx, s, e, f, s_i = insta
-			self.set_radio(i, idx, '{:04d}'.format(s), '{:04d}'.format(e), f)
+			if i < 1:
+				bold = True if s > 1 else False
+			else:
+				_, _, e_prev, _, _ = inst[i-1]
+				bold = True if s-e_prev > 1 else False
+			self.set_radio(i, idx, '{:04d}'.format(s), '{:04d}'.format(e), f, bold)
 			self.instances.append([s_i, s])
 		for idx_, cnt in zip(range(len(classes_id)), unique):
 			self.set_label(idx_, cnt)
 
-	def set_radio(self, idx, cid, st, en, fr):
+	def set_label(self, idx, cnt):
+		if idx == 0:
+			pb = self.lb0
+		elif idx == 1:
+			pb = self.lb1
+		elif idx == 2:
+			pb = self.lb2
+		elif idx == 3:
+			pb = self.lb3
+		elif idx == 4:
+			pb = self.lb4
+		elif idx == 5:
+			pb = self.lb5
+		elif idx == 6:
+			pb = self.lb6
+		elif idx == 7:
+			pb = self.lb7
+		elif idx == 8:
+			pb = self.lb8
+		elif idx == 9:
+			pb = self.lb9
+		elif idx == 10:
+			pb = self.lb10
+		elif idx == 11:
+			pb = self.lb11
+		elif idx == 12:
+			pb = self.lb12
+		elif idx == 13:
+			pb = self.lb13
+		pb.setText("{}: [{}]".format(classes_id[idx], cnt))
+		col_ = "rgb(0,0,0)" if cnt > 0 else "rgb(195,0,0)"
+		if cnt > 3:
+			col_ = "rgb(20,140,20)"
+		pb.setStyleSheet("color: {}".format(col_))
+
+
+	def set_radio(self, idx, cid, st, en, fr, bold=False):
 		rb = self.rb10
 		if idx == 0:
 			rb = self.rb0
@@ -295,47 +344,49 @@ class UI_report(QMainWindow):
 			rb = self.rb28
 		elif idx == 29:
 			rb = self.rb29
-		rb.setText("[{:02d}] {}: {} - {}".format(idx, classes_id[cid].split(":")[0], st, en))
-		if fr > 9:
-			rb.setStyleSheet("color: rgb(0,0,0)")
+		elif idx == 30:
+			rb = self.rb30
+		elif idx == 31:
+			rb = self.rb31
+		elif idx == 32:
+			rb = self.rb32
+		elif idx == 33:
+			rb = self.rb33
+		elif idx == 34:
+			rb = self.rb34
+		elif idx == 35:
+			rb = self.rb35
+		elif idx == 36:
+			rb = self.rb36
+		elif idx == 37:
+			rb = self.rb37
+		elif idx == 38:
+			rb = self.rb38
+		elif idx == 39:
+			rb = self.rb39
+		elif idx == 40:
+			rb = self.rb40
+		elif idx == 41:
+			rb = self.rb41
+		elif idx == 42:
+			rb = self.rb42
+		elif idx == 43:
+			rb = self.rb43
+		elif idx == 44:
+			rb = self.rb44
+		elif idx == 45:
+			rb = self.rb45
+		rb.setText("[{:02d}] {}: {} - {}".format(idx+1, classes_id[cid].split(":")[0], st, en))
+		col_ = "rgb(0,0,0)" if cid > 2 else "rgb(20,120,20)"
+		col_ = col_ if cid > 0 else "rgb(220,20,20)"
+		fr = int(en) - int(st) + 1
+		if fr < 10:
+			col_ = "rgb(0,0,245)"
+		if bold:
+			rb.setStyleSheet("font-weight: bold; color: {}".format(col_))
 		else:
-			rb.setStyleSheet("color: rgb(185,0,0)")
+			rb.setStyleSheet("color: {}".format(col_))
 		rb.setVisible(True)
-
-	def set_label(self, idx, cnt):
-		if idx == 0:
-			pb = self.lb0
-		elif idx == 1:
-			pb = self.lb1
-		elif idx == 2:
-			pb = self.lb2
-		elif idx == 3:
-			pb = self.lb3
-		elif idx == 4:
-			pb = self.lb4
-		elif idx == 5:
-			pb = self.lb5
-		elif idx == 6:
-			pb = self.lb6
-		elif idx == 7:
-			pb = self.lb7
-		elif idx == 8:
-			pb = self.lb8
-		elif idx == 9:
-			pb = self.lb9
-		elif idx == 10:
-			pb = self.lb10
-		elif idx == 11:
-			pb = self.lb11
-		elif idx == 12:
-			pb = self.lb12
-		elif idx == 13:
-			pb = self.lb13
-		pb.setText("{}: [{}]".format(classes_id[idx], cnt))
-		if cnt > 0:
-			pb.setStyleSheet("color: rgb(0,0,0)")
-		else:
-			pb.setStyleSheet("color: rgb(185,0,0)")
 
 
 if __name__ == "__main__":

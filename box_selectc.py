@@ -16,7 +16,7 @@ fin_mode = True
 frames_path = "F:\\IPN_Hand\\frames"
 # frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
 # frames_path = "E:/datasets/IPN_hand/frames"
-# frames_path = "D:/Pytorch/YOLOv5/frames"
+# frames_path = "D:/datasets/IPN_hand/frames"
 
 if fin_mode:
 	txt_folder = "final_annot"
@@ -398,43 +398,72 @@ class UI(QMainWindow):
 						self.rotate_checked()
 				else:
 					self.radioB2.setChecked(True)
-		if e.key() == Qt.Key_1:
-			if self.sp_H1.isVisible():
-				if len(self.text_chosen) > 1:
-					self.choose_change = 0
-					self.change_spb("change_mod")
-			if self.radS1.isVisible():
-				self.radS1.setChecked(True)
-				self.radS2.setChecked(False)
-				self.radS3.setChecked(False)
-				self.radS4.setChecked(False)
-		if e.key() == Qt.Key_2:
-			if self.sp_H1.isVisible():
-				if len(self.text_chosen) > 1:
-					self.choose_change = 1
-					self.change_spb("change_mod")
-				else:
-					self.choose_change = 0
-			if self.radS2.isVisible():
-				self.radS2.setChecked(True)
-				self.radS1.setChecked(False)
-				self.radS3.setChecked(False)
-				self.radS4.setChecked(False)
-		if e.key() == Qt.Key_3:
-			if self.radS3.isVisible():
-				self.radS3.setChecked(True)
-				self.radS1.setChecked(False)
-				self.radS2.setChecked(False)
-				self.radS4.setChecked(False)
-		if e.key() == Qt.Key_4:
-			if self.radS4.isVisible():
-				self.radS4.setChecked(True)
-				self.radS1.setChecked(False)
-				self.radS2.setChecked(False)
-				self.radS3.setChecked(False)
 		if e.key() == Qt.Key_R:
 			if self.buttonAll.isVisible():
 				self.Sbtnstate(True)
+
+		if e.key() == Qt.Key_3:
+			self.cambia_class(0)
+		if e.key() == Qt.Key_1:
+			self.cambia_class(1)
+		if e.key() == Qt.Key_2:
+			self.cambia_class(2)
+		if e.key() == Qt.Key_F1:
+			self.cambia_class(3)
+		if e.key() == Qt.Key_F2:
+			self.cambia_class(4)
+		if e.key() == Qt.Key_F3:
+			self.cambia_class(5)
+		if e.key() == Qt.Key_F4:
+			self.cambia_class(6)
+		if e.key() == Qt.Key_F5:
+			self.cambia_class(7)
+		if e.key() == Qt.Key_F6:
+			self.cambia_class(8)
+		if e.key() == Qt.Key_F7:
+			self.cambia_class(9)
+		if e.key() == Qt.Key_F8:
+			self.cambia_class(10)
+		if e.key() == Qt.Key_F9:
+			self.cambia_class(11)
+		if e.key() == Qt.Key_F10:
+			self.cambia_class(12)
+		if e.key() == Qt.Key_F11:
+			self.cambia_class(13)
+		# if e.key() == Qt.Key_1:
+		# 	if self.sp_H1.isVisible():
+		# 		if len(self.text_chosen) > 1:
+		# 			self.choose_change = 0
+		# 			self.change_spb("change_mod")
+		# 	if self.radS1.isVisible():
+		# 		self.radS1.setChecked(True)
+		# 		self.radS2.setChecked(False)
+		# 		self.radS3.setChecked(False)
+		# 		self.radS4.setChecked(False)
+		# if e.key() == Qt.Key_2:
+		# 	if self.sp_H1.isVisible():
+		# 		if len(self.text_chosen) > 1:
+		# 			self.choose_change = 1
+		# 			self.change_spb("change_mod")
+		# 		else:
+		# 			self.choose_change = 0
+		# 	if self.radS2.isVisible():
+		# 		self.radS2.setChecked(True)
+		# 		self.radS1.setChecked(False)
+		# 		self.radS3.setChecked(False)
+		# 		self.radS4.setChecked(False)
+		# if e.key() == Qt.Key_3:
+		# 	if self.radS3.isVisible():
+		# 		self.radS3.setChecked(True)
+		# 		self.radS1.setChecked(False)
+		# 		self.radS2.setChecked(False)
+		# 		self.radS4.setChecked(False)
+		# if e.key() == Qt.Key_4:
+		# 	if self.radS4.isVisible():
+		# 		self.radS4.setChecked(True)
+		# 		self.radS1.setChecked(False)
+		# 		self.radS2.setChecked(False)
+		# 		self.radS3.setChecked(False)
 
 	def rotate_checked(self):
 		if self.radS2.isVisible() and self.radS1.isChecked():
@@ -457,6 +486,32 @@ class UI(QMainWindow):
 			self.radS2.setChecked(False)
 			self.radS3.setChecked(False)
 			self.radS4.setChecked(False)
+
+	def cambia_class(self, idx=0):
+		if self.pflag:
+			return
+		txt_l = self.text_saved
+		if txt_l is not None:
+			txt_path = os.path.join(self.sele_path, os.path.basename(self.bad_list[self.i]))
+			new_l = []
+			for line_ in txt_l:
+				buff_ = line_.split(" ")
+				buff_[0] = str(idx)
+				new_l.append(' '.join(buff_))
+			self.write_txt(txt_path, new_l)
+		else:
+			print("WARNING: No se puede cambiar clase porque no hay BOX!")
+			return
+		self.set_idcl(idx)
+		if idx > 2:
+			self.label_msg.setText("CLS a G{}".format(idx-2))
+		elif idx == 1:
+			self.label_msg.setText("CLS a B0A")
+		elif idx == 2:
+			self.label_msg.setText("CLS a B0B")
+		else:
+			self.label_msg.setText("CLS aD0X!!")
+		self.next_(True)
 
 	def del_chosen(self):
 		if self.pflag:
@@ -487,6 +542,7 @@ class UI(QMainWindow):
 			self.label_msg.setText("{} BBOX Chosen".format(len(txt_l)))
 			self.buttonDelete.setVisible(True)
 			self.set_idc(1)
+			self.text_saved = txt_l
 		else:
 			txt_l = self.read_txt(txt_)
 			self.set_idcl()
@@ -494,6 +550,7 @@ class UI(QMainWindow):
 			self.buttonDelete.setVisible(False)
 			self.label_msg.setText("")
 			self.set_idc(0)
+			self.text_saved = None
 		self.label_frame.setText(os.path.basename(img_))
 		self.radioB1.setVisible(False)
 		self.radioB2.setVisible(False)
@@ -543,7 +600,7 @@ class UI(QMainWindow):
 			app.processEvents()
 			if self.flag:
 				break
-			time.sleep(0.05)
+			time.sleep(0.001)
 		self.i = j
 		self.flag = False
 		self.pflag = False
@@ -654,6 +711,7 @@ class UI(QMainWindow):
 		self.text_change = None
 		self.text_chosen = None
 		self.choose_change = 0
+		self.text_saved = None
 
 		txt_ = self.bad_list[indx]
 		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
@@ -694,13 +752,14 @@ class UI(QMainWindow):
 		iPath = fname[0]
 		self.ext = os.path.splitext(iPath)[-1]
 		txt_path = os.path.dirname(iPath)
-		print(txt_path)
-		self.img_path = "{}/{}/".format(frames_path, txt_path.split('/')[-1])
-		self.ano1_path = "{}/ipn_11c/{}/".format(Path(iPath).parents[2], txt_path.split('/')[-1])
-		self.ano2_path = "{}/ipn_prune4/{}/".format(Path(iPath).parents[2], txt_path.split('/')[-1])
+		vid_name = txt_path.split('/')[-1]
+		print(vid_name)
+		self.img_path = "{}/{}/".format(frames_path, vid_name)
+		self.ano1_path = "{}/ipn_11c/{}/".format(Path(iPath).parents[2], vid_name)
+		self.ano2_path = "{}/ipn_prune4/{}/".format(Path(iPath).parents[2], vid_name)
 
-		self.sele_path = "{}/{}/{}/".format(Path(iPath).parents[2], txt_folder, txt_path.split('/')[-1])
-		# self.sele_path = "{}/anotations/{}/".format(Path(iPath).parents[2], txt_path.split('/')[-1])
+		self.sele_path = "{}/{}/{}/".format(Path(iPath).parents[2], txt_folder, vid_name)
+		# self.sele_path = "{}/anotations/{}/".format(Path(iPath).parents[2], vid_name)
 		if not os.path.exists(self.sele_path):
 			os.makedirs(self.sele_path)
 
@@ -710,11 +769,12 @@ class UI(QMainWindow):
 		self.i = self.bad_list.index(iPath.replace('\\', '/'))
 
 		self.plotter(self.i)
+		self.vid_name = vid_name
 
 	def open_rep(self):
 		inst, uniq = find_SE(self.sele_path)
 		self.report_win = UI_report(self)
-		self.report_win.get_ins(inst, uniq)
+		self.report_win.get_ins(inst, uniq, self.vid_name)
 		self.report_win.show()
 
 	def close_rep(self):
