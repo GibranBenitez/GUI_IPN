@@ -402,12 +402,24 @@ class UI(QMainWindow):
 			if self.buttonAll.isVisible():
 				self.Sbtnstate(True)
 
+		if e.key() == Qt.Key_1:
+			if self.sp_H1.isVisible():
+				if len(self.text_chosen) > 1:
+					self.choose_change = 0
+					self.change_spb("change_mod")
+			else:
+				self.cambia_class(1)
+		if e.key() == Qt.Key_2:
+			if self.sp_H1.isVisible():
+				if len(self.text_chosen) > 1:
+					self.choose_change = 1
+					self.change_spb("change_mod")
+				else:
+					self.choose_change = 0
+			else:
+				self.cambia_class(2)
 		if e.key() == Qt.Key_3:
 			self.cambia_class(0)
-		if e.key() == Qt.Key_1:
-			self.cambia_class(1)
-		if e.key() == Qt.Key_2:
-			self.cambia_class(2)
 		if e.key() == Qt.Key_F1:
 			self.cambia_class(3)
 		if e.key() == Qt.Key_F2:
@@ -430,6 +442,7 @@ class UI(QMainWindow):
 			self.cambia_class(12)
 		if e.key() == Qt.Key_F11:
 			self.cambia_class(13)
+
 		# if e.key() == Qt.Key_1:
 		# 	if self.sp_H1.isVisible():
 		# 		if len(self.text_chosen) > 1:
@@ -756,6 +769,7 @@ class UI(QMainWindow):
 		print(vid_name)
 		self.img_path = "{}/{}/".format(frames_path, vid_name)
 		self.ano1_path = "{}/ipn_11c/{}/".format(Path(iPath).parents[2], vid_name)
+		# self.ano1_path = "{}/ipn_gordo/{}/".format(Path(iPath).parents[2], vid_name)
 		self.ano2_path = "{}/ipn_prune4/{}/".format(Path(iPath).parents[2], vid_name)
 
 		self.sele_path = "{}/{}/{}/".format(Path(iPath).parents[2], txt_folder, vid_name)

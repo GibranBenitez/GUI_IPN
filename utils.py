@@ -191,12 +191,16 @@ if __name__ == "__main__":
 
     sepOS = '\\'    # Windows
     # sepOS = '/'     # Ubuntu
+
+    frames_path = "F:\\IPN_Hand\\frames"
     anot_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\anotations'
     sele_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\selected_boxes'
     fin_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot'
+    # frames_path = "E:/datasets/IPN_hand/frames"
     # anot_path = 'D:/Pytorch/yolov5/runs/test_gordo/anotations'
     # sele_path = 'D:/Pytorch/yolov5/runs/test_gordo/selected_boxes'
     # fin_path = 'D:/Pytorch/yolov5/runs/test_gordo/final_annot'
+    # frames_path = "D:/datasets/IPN_hand/frames"
     # anot_path = 'D:/Pytorch/YOLOv5/anotations'
     # sele_path = 'D:/Pytorch/YOLOv5/selected_boxes'
     # fin_path = 'D:/Pytorch/YOLOv5/final_annot'
@@ -207,26 +211,34 @@ if __name__ == "__main__":
         print("  Generating final annots of {}...".format(folder_))
         if not os.path.exists(os.path.join(fin_path, folder_)):
             os.makedirs(os.path.join(fin_path, folder_))
-        anot_list = glob.glob(folder_a + "/*.txt")
+        # anot_list = glob.glob(folder_a + "/*.txt")
+        anot_list = glob.glob(frames_path + sepOS + folder_ + sepOS + "/*.jpg")
         cnt = 0
         cntf = 0
 
-        for anot_txt in anot_list:
-            txt_ = anot_txt.split(sepOS)[-1]
+        for frame_ in anot_list:
+            txt_ = frame_.split(sepOS)[-1].replace('.jpg', '.txt')
+            anot_txt = os.path.join(folder_a, txt_)
             sele_txt = os.path.join(sele_path, folder_, txt_)
             fin_txt = os.path.join(fin_path, folder_, txt_)
             if os.path.exists(fin_txt):
                 cntf += 1
                 continue
 
-            if os.path.exists(sele_txt):
+            if os.path.exists(sele_txt) and os.path.exists(anot_txt):
                 sele_box = read_txt(sele_txt)
                 anot_box = read_txt(anot_txt)
                 final_box = mix_box(anot_box, sele_box)
                 write_txt(fin_txt, final_box)
                 cnt += 1
                 # pdb.set_trace()
-            else:
+            elif os.path.exists(anot_txt):
                 shutil.copy(anot_txt, fin_txt)
+                cnt += 1
+            elif os.path.exists(sele_txt):
+                shutil.copy(sele_txt, fin_txt)
+                cnt += 1
+            else:
+                write_txt(fin_txt, ["0 0.0 0.0 0.0 0.0"])
         print("     {}/{} selected bboxes ({} there)".format(cnt, len(anot_list), cntf))
         find_SE(os.path.join(fin_path, folder_))
