@@ -203,6 +203,7 @@ if __name__ == "__main__":
     # frames_path = "D:/datasets/IPN_hand/frames"
     # anot_path = 'D:/Pytorch/YOLOv5/anotations'
     # sele_path = 'D:/Pytorch/YOLOv5/selected_boxes'
+    # sele_path = 'D:/Pytorch/YOLOv5/ipn_gordo'
     # fin_path = 'D:/Pytorch/YOLOv5/final_annot'
 
     all_folders = glob.glob(anot_path + "/*")
