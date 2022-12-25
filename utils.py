@@ -196,6 +196,7 @@ if __name__ == "__main__":
     anot_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\anotations'
     sele_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\selected_boxes'
     fin_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot'
+    list_path = 'C:\\Users\\Luis Bringas\\Desktop\\New_gt\\segment_lists'
     # frames_path = "E:/datasets/IPN_hand/frames"
     # anot_path = 'D:/Pytorch/yolov5/runs/test_gordo/anotations'
     # sele_path = 'D:/Pytorch/yolov5/runs/test_gordo/selected_boxes'
@@ -205,41 +206,70 @@ if __name__ == "__main__":
     # sele_path = 'D:/Pytorch/YOLOv5/selected_boxes'
     # sele_path = 'D:/Pytorch/YOLOv5/ipn_gordo'
     # fin_path = 'D:/Pytorch/YOLOv5/final_annot'
+    # list_path = 'D:/Pytorch/YOLOv5/segment_lists'
 
-    all_folders = glob.glob(anot_path + "/*")
-    for folder_a in all_folders:
-        folder_ = folder_a.split(sepOS)[-1]
-        print("  Generating final annots of {}...".format(folder_))
-        if not os.path.exists(os.path.join(fin_path, folder_)):
-            os.makedirs(os.path.join(fin_path, folder_))
-        # anot_list = glob.glob(folder_a + "/*.txt")
-        anot_list = glob.glob(frames_path + sepOS + folder_ + sepOS + "/*.jpg")
-        cnt = 0
-        cntf = 0
+    # all_folders = glob.glob(anot_path + "/*")
+    # for folder_a in all_folders:
+    #     folder_ = folder_a.split(sepOS)[-1]
+    #     print("  Generating final annots of {}...".format(folder_))
+    #     if not os.path.exists(os.path.join(fin_path, folder_)):
+    #         os.makedirs(os.path.join(fin_path, folder_))
+    #     # anot_list = glob.glob(folder_a + "/*.txt")
+    #     anot_list = glob.glob(frames_path + sepOS + folder_ + sepOS + "/*.jpg")
+    #     cnt = 0
+    #     cntf = 0
 
-        for frame_ in anot_list:
-            txt_ = frame_.split(sepOS)[-1].replace('.jpg', '.txt')
-            anot_txt = os.path.join(folder_a, txt_)
-            sele_txt = os.path.join(sele_path, folder_, txt_)
-            fin_txt = os.path.join(fin_path, folder_, txt_)
-            if os.path.exists(fin_txt):
-                cntf += 1
-                continue
+    #     for frame_ in anot_list:
+    #         txt_ = frame_.split(sepOS)[-1].replace('.jpg', '.txt')
+    #         anot_txt = os.path.join(folder_a, txt_)
+    #         sele_txt = os.path.join(sele_path, folder_, txt_)
+    #         fin_txt = os.path.join(fin_path, folder_, txt_)
+    #         if os.path.exists(fin_txt):
+    #             cntf += 1
+    #             continue
 
-            if os.path.exists(sele_txt) and os.path.exists(anot_txt):
-                sele_box = read_txt(sele_txt)
-                anot_box = read_txt(anot_txt)
-                final_box = mix_box(anot_box, sele_box)
-                write_txt(fin_txt, final_box)
-                cnt += 1
-                # pdb.set_trace()
-            elif os.path.exists(anot_txt):
-                shutil.copy(anot_txt, fin_txt)
-                cnt += 1
-            elif os.path.exists(sele_txt):
-                shutil.copy(sele_txt, fin_txt)
-                cnt += 1
-            else:
-                write_txt(fin_txt, ["0 0.0 0.0 0.0 0.0"])
-        print("     {}/{} selected bboxes ({} there)".format(cnt, len(anot_list), cntf))
-        # find_SE(os.path.join(fin_path, folder_))
+    #         if os.path.exists(sele_txt) and os.path.exists(anot_txt):
+    #             sele_box = read_txt(sele_txt)
+    #             anot_box = read_txt(anot_txt)
+    #             final_box = mix_box(anot_box, sele_box)
+    #             write_txt(fin_txt, final_box)
+    #             cnt += 1
+    #             # pdb.set_trace()
+    #         elif os.path.exists(anot_txt):
+    #             shutil.copy(anot_txt, fin_txt)
+    #             cnt += 1
+    #         elif os.path.exists(sele_txt):
+    #             shutil.copy(sele_txt, fin_txt)
+    #             cnt += 1
+    #         else:
+    #             write_txt(fin_txt, ["0 0.0 0.0 0.0 0.0"])
+    #     print("     {}/{} selected bboxes ({} there)".format(cnt, len(anot_list), cntf))
+
+
+
+    all_videos = glob.glob(fin_path + "/*")
+    print(fin_path)
+    if not os.path.exists(list_path):
+        os.makedirs(list_path)
+    full_segments = []
+    class_segments = [ [] for _ in range(len(classes_id)) ]
+    for vid_a in all_videos:
+        folder_ = vid_a.split(sepOS)[-1]
+        print("   Genereting list of "+folder_+"...")
+        instances, uniq_cnt = find_SE(os.path.join(vid_a))
+        for segment_ in instances:
+            _ = segment_.pop()
+            segment_ = [str(s) for s in segment_]
+            segment_.insert(0, folder_)
+            for i, class_ in enumerate(classes_id):
+                if i == int(segment_[1]):
+                    class_segments[i].append(" ".join(segment_))
+    print("Saving lists in txt:")
+    for i, list_ in enumerate(class_segments):
+        class_ = classes_id[i]
+        full_segments += list_
+        write_txt(os.path.join(list_path, "{}.txt".format("_".join(class_.split(": ")))), list_)
+        print("   {}: {} instances".format(class_, len(list_)))
+
+    write_txt(os.path.join(list_path, "Z_Full.txt"), full_segments)
+    print(" Total: {} instances".format(len(full_segments)))
