@@ -242,4 +242,4 @@ if __name__ == "__main__":
             else:
                 write_txt(fin_txt, ["0 0.0 0.0 0.0 0.0"])
         print("     {}/{} selected bboxes ({} there)".format(cnt, len(anot_list), cntf))
-        find_SE(os.path.join(fin_path, folder_))
+        # find_SE(os.path.join(fin_path, folder_))
