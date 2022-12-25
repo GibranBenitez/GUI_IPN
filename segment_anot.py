@@ -576,7 +576,7 @@ class UI(QMainWindow):
 			else:
 				self.v += 1
 		else:
-			return
+			self.v = len(self.segments) - 1
 		segment_ = self.segments[self.v]
 		self.idc = int(segment_.split(" ")[1])
 		self.all_frames = int(segment_.split(" ")[-1])
@@ -596,7 +596,7 @@ class UI(QMainWindow):
 			else:
 				self.v -= 1
 		else:
-			return
+			self.v = 0
 		segment_ = self.segments[self.v]
 		self.idc = int(segment_.split(" ")[1])
 		self.all_frames = int(segment_.split(" ")[-1])
@@ -811,7 +811,7 @@ class UI(QMainWindow):
 
 		fname = QFileDialog.getOpenFileName(self, "Open Gesture List", init_path, "Txt Files (*.txt)")
 		iPath = fname[0]
-		segments = self.read_txt(iPath)
+		segments = os_sorted(self.read_txt(iPath))
 		vid_name = segments[0].split(" ")[0]
 		print(vid_name)
 
