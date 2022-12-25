@@ -11,14 +11,13 @@ from report import UI_report
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
 				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", ""]
-fin_mode = True
-# fin_mode = False
+
 frames_path = "F:\\IPN_Hand\\frames"
-init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
+init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\segment_lists"
 box_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
-frames_path = "D:/datasets/IPN_hand/frames"
-init_path = "D:/Pytorch/YOLOv5/segment_lists"
-box_path = "D:/Pytorch/YOLOv5/final_annot"
+# frames_path = "D:/datasets/IPN_hand/frames"
+# init_path = "D:/Pytorch/YOLOv5/segment_lists"
+# box_path = "D:/Pytorch/YOLOv5/final_annot"
 
 random.seed(42)
 colorsl = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(classes_id))]
@@ -37,7 +36,6 @@ class UI(QMainWindow):
 
 		self.flag = False
 		self.pflag = False
-		self.bad_flag = False
 		self.i = 0
 
 		# Define our widgets
@@ -91,6 +89,10 @@ class UI(QMainWindow):
 		self.shi_P.activated.connect(lambda: self.play_(True))
 		self.shi_O = QShortcut(QKeySequence('Shift+O'), self)
 		self.shi_O.activated.connect(lambda: self.play_back(True))
+		self.shi_M = QShortcut(QKeySequence('Shift+M'), self)
+		self.shi_M.activated.connect(self.next_segment)
+		self.shi_N = QShortcut(QKeySequence('Shift+N'), self)
+		self.shi_N.activated.connect(self.prev_segment)
 		self.shi_L = QShortcut(QKeySequence('Shift+L'), self)
 		self.shi_L.activated.connect(self.play_)
 		self.shi_K = QShortcut(QKeySequence('Shift+K'), self)
@@ -295,8 +297,7 @@ class UI(QMainWindow):
 	def send_box(self, sig_=True):
 		if self.pflag:
 			return
-		txt_ = self.bad_list[self.i]
-		txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
+		txt_path = self.txt_file
 		if not self.sp_H1.isVisible() and os.path.exists(txt_path):
 			if sig_:
 				self.next_() 
@@ -327,9 +328,9 @@ class UI(QMainWindow):
 		if e.key() == Qt.Key_O:
 			self.back_()
 		if e.key() == Qt.Key_M:
-			self.open_rep()
+			self.next_segment(True)
 		if e.key() == Qt.Key_N:
-			self.close_rep()
+			self.prev_segment(True)
 		if e.key() == Qt.Key_L:
 			self.next_(True)
 		if e.key() == Qt.Key_K:
@@ -494,7 +495,7 @@ class UI(QMainWindow):
 			return
 		txt_l = self.text_saved
 		if txt_l is not None:
-			txt_path = os.path.join(self.sele_path, os.path.basename(self.bad_list[self.i]))
+			txt_path = self.txt_file
 			new_l = []
 			for line_ in txt_l:
 				buff_ = line_.split(" ")
@@ -521,8 +522,7 @@ class UI(QMainWindow):
 		if self.sp_H1.isVisible():
 			self.setClean_mode(self.i)
 		else:
-			txt_ = self.bad_list[self.i]
-			txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
+			txt_path = self.txt_file
 			if os.path.exists(txt_path):
 				os.remove(txt_path)
 				self.plotter(self.i)
@@ -534,8 +534,7 @@ class UI(QMainWindow):
 				print("NOT FOUND {}".format(os.path.basename(txt_)))
 
 	def setClean_mode(self, idx):
-		vid_name = self.segments[self.v].split(" ")[0]
-		frame_name = vid_name + "_{:06d}.txt".format(self.i)
+		frame_name = self.vid_name + "_{:06d}.txt".format(self.i)
 		txt_path = os.path.join(self.sele_path, self.vid_name, frame_name)
 		self.txt_file = txt_path
 		img_ = os.path.join(self.img_path, self.vid_name, frame_name.replace('.txt', '.jpg'))
@@ -562,44 +561,101 @@ class UI(QMainWindow):
 		self.text_chosen = txt_l
 		self.choose_change = 0
 
+	def check_next(self, idx=None):
+		idx = idx if idx is not None else self.i+1
+		frame_name = self.vid_name + "_{:06d}.txt".format(idx)
+		txt_l = self.read_txt(os.path.join(self.sele_path, self.vid_name, frame_name))
+		return int(txt_l[0].split(" ")[0]) == self.idc
+
+	def next_segment(self, flagg=False):
+		if self.pflag:
+			return
+		if self.v < len(self.segments) - 2:
+			if not flagg:
+				self.v += 4
+			else:
+				self.v += 1
+		else:
+			return
+		segment_ = self.segments[self.v]
+		self.idc = int(segment_.split(" ")[1])
+		self.all_frames = int(segment_.split(" ")[-1])
+		self.end_frame = int(segment_.split(" ")[3])
+		self.start_frame = int(segment_.split(" ")[2])
+		self.i = self.start_frame
+		self.vid_name = segment_.split(" ")[0]
+		print(self.vid_name)
+		self.setClean_mode(self.i)
+
+	def prev_segment(self, flagg=False):
+		if self.pflag:
+			return
+		if self.v > 0:
+			if not flagg:
+				self.v -= 4
+			else:
+				self.v -= 1
+		else:
+			return
+		segment_ = self.segments[self.v]
+		self.idc = int(segment_.split(" ")[1])
+		self.all_frames = int(segment_.split(" ")[-1])
+		self.end_frame = int(segment_.split(" ")[3])
+		self.start_frame = int(segment_.split(" ")[2])
+		self.i = self.start_frame
+		self.vid_name = segment_.split(" ")[0]
+		print(self.vid_name)
+		self.setClean_mode(self.i)
+
 	def next_(self, flagg=False):
 		if self.pflag:
 			return
-		if self.i < len(self.bad_list) - 1:
-			self.i += 1
+		if self.i < self.all_frames - 1:
+			if not flagg:
+				self.i += 1
+			elif self.check_next():
+				self.i += 1
+			elif self.i > self.end_frame:
+				self.i = self.end_frame
+			elif self.i < self.start_frame:
+				self.i = self.start_frame
 		else:
-			self.i = len(self.bad_list) - 1
-		if flagg:
-			self.setClean_mode(self.i)
-		else:
-			self.plotter(self.i)
+			self.i = self.all_frames
+		self.setClean_mode(self.i)
 
 	def back_(self, flagg=False):
 		if self.pflag:
 			return
 		if self.i > 0:
-			self.i -= 1
+			if not flagg:
+				self.i -= 1
+			elif self.check_next(self.i-1):
+				self.i -= 1
+			elif self.i > self.end_frame:
+				self.i = self.end_frame
+			elif self.i < self.start_frame:
+				self.i = self.start_frame
 		else:
 			self.i = 0
-		if flagg:
-			self.setClean_mode(self.i)
-		else:
-			self.plotter(self.i)
+		self.setClean_mode(self.i)
 
 	def play_(self, fflag=False):
 		if self.pflag:
 			return
 		self.flag = False
 		self.pflag = True
-		for j in range(self.i, len(self.bad_list)):
-			if fflag:
-				self.plotter(j)
-			else:
+		for j in range(self.i, self.all_frames):
+			if self.check_next(j):
 				self.setClean_mode(j)
-			app.processEvents()
+				app.processEvents()
+				time.sleep(0.001)
+			else:
+				self.i = j - 1
+				self.flag = False
+				self.pflag = False
+				break
 			if self.flag:
 				break
-			time.sleep(0.001)
 		self.i = j
 		self.flag = False
 		self.pflag = False
@@ -611,10 +667,13 @@ class UI(QMainWindow):
 		self.pflag = True
 		j = 0
 		for j in range(self.i, 0, -1):
-			if fflag:
-				self.plotter(j)
-			else:
+			if self.check_next(j):
 				self.setClean_mode(j)
+			else:
+				self.i = j + 1
+				self.flag = False
+				self.pflag = False
+				break
 			app.processEvents()
 			if self.flag:
 				break
@@ -660,17 +719,17 @@ class UI(QMainWindow):
 	def copy_bbox(self, idx=1):
 		if self.pflag or self.sp_H1.isVisible():
 			return
-		txt_path = self.sele_path + os.path.basename(self.bad_list[self.i])
-		txt_path = self.txt_path
+		txt_path = self.txt_file
 		if not os.path.exists(txt_path):
-			prev_path = self.txt_path + os.path.basename(self.bad_list[self.i+idx])
+			frame_name = self.vid_name + "_{:06d}.txt".format(self.i+idx)
+			prev_path = os.path.join(self.sele_path, self.vid_name, frame_name)
 			if os.path.exists(prev_path):
 				shutil.copy(prev_path, txt_path)
 				self.setClean_mode(self.i)
 				self.label_msg.setText("BBOX Copiado!!")
 				self.set_idc(2)
 			else:
-				print("NOT FOUND {}".format(os.path.basename(self.bad_list[self.i+idx])))
+				print("NOT FOUND {}".format(frame_name))
 		else:
 			if self.radioNo.isVisible():
 				self.next_()
@@ -747,23 +806,24 @@ class UI(QMainWindow):
 		self.radioB1.setVisible(True)
 		self.radioB2.setVisible(True)
 		self.radioNo.setVisible(True)
+		self.img_path = frames_path
+		self.sele_path = box_path
 
 		fname = QFileDialog.getOpenFileName(self, "Open Gesture List", init_path, "Txt Files (*.txt)")
 		iPath = fname[0]
 		segments = self.read_txt(iPath)
-		self.v = 0
-		self.idc = int(segments[0].split(" ")[1])
-		self.end_frame = int(segments[0].split(" ")[-1])
 		vid_name = segments[0].split(" ")[0]
 		print(vid_name)
-		self.img_path = frames_path
-		self.sele_path = box_path
 
-		self.i = int(segments[0].split(" ")[2])
+		self.idc = int(segments[0].split(" ")[1])
+		self.all_frames = int(segments[0].split(" ")[-1])
+		self.end_frame = int(segments[0].split(" ")[3])
+		self.start_frame = int(segments[0].split(" ")[2])
+		self.i = self.start_frame
+		self.v = 0
+		self.vid_name = segments[self.v].split(" ")[0]
 		self.segments = segments
-
 		self.setClean_mode(self.i)
-		self.vid_name = vid_name
 
 	def open_rep(self):
 		inst, uniq = find_SE(self.sele_path)
