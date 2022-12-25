@@ -514,7 +514,7 @@ class UI(QMainWindow):
 			self.label_msg.setText("CLS a B0B")
 		else:
 			self.label_msg.setText("CLS aD0X!!")
-		self.next_(True)
+		self.next_()
 
 	def del_chosen(self):
 		if self.pflag:
@@ -613,12 +613,12 @@ class UI(QMainWindow):
 		if self.i < self.all_frames - 1:
 			if not flagg:
 				self.i += 1
+			elif self.i < self.start_frame:
+				self.i = self.start_frame
 			elif self.check_next():
 				self.i += 1
 			elif self.i > self.end_frame:
 				self.i = self.end_frame
-			elif self.i < self.start_frame:
-				self.i = self.start_frame
 		else:
 			self.i = self.all_frames
 		self.setClean_mode(self.i)
