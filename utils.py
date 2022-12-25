@@ -150,7 +150,7 @@ def mix_box(anot_box, sele_box):
         fin_box[i] = ' '.join(sele_vals)
     return fin_box
 
-def find_SE(txt_path_list):
+def find_SE(txt_path_list, lenv = False):
     anot_list = glob.glob(txt_path_list + "/*.txt")
     list_ids = []
     frame_ids = []
@@ -168,6 +168,8 @@ def find_SE(txt_path_list):
             continue
         if idx != list_ids[i-1]:
             e = frame_ids[i-1]
+            if lenv:
+                s_i = len(anot_list)
             instances.append([list_ids[i-1], s, e, f, s_i])
             ids_all.append(list_ids[i-1])
             s = frame_ids[i]
@@ -179,6 +181,8 @@ def find_SE(txt_path_list):
         e = s
     else:
         e = frame_ids[i]
+    if lenv:
+        s_i = len(anot_list)
     instances.append([list_ids[i], s, e, f, s_i])
     ids_all.append(list_ids[i])
     values, counts = np.unique(ids_all, return_counts=True)
@@ -256,9 +260,8 @@ if __name__ == "__main__":
     for vid_a in all_videos:
         folder_ = vid_a.split(sepOS)[-1]
         print("   Genereting list of "+folder_+"...")
-        instances, uniq_cnt = find_SE(os.path.join(vid_a))
+        instances, uniq_cnt = find_SE(os.path.join(vid_a), True)
         for segment_ in instances:
-            _ = segment_.pop()
             segment_ = [str(s) for s in segment_]
             segment_.insert(0, folder_)
             for i, class_ in enumerate(classes_id):

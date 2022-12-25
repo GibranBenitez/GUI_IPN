@@ -14,22 +14,11 @@ classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f",
 fin_mode = True
 # fin_mode = False
 frames_path = "F:\\IPN_Hand\\frames"
-# frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
-# frames_path = "E:/datasets/IPN_hand/frames"
-# frames_path = "D:/datasets/IPN_hand/frames"
-
-if fin_mode:
-	txt_folder = "final_annot"
-	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
-	# init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
-	# init_path = "D:/Pytorch/yolov5/runs/test_gordo/final_annot"
-	# init_path = "D:/Pytorch/YOLOv5/final_annot"
-else:
-	txt_folder = "selected_boxes"
-	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\bad_bboxes"
-	# init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
-	# init_path = "D:/Pytorch/yolov5/runs/test_gordo/bad_bboxes"
-	# init_path = "D:/Pytorch/YOLOv5/bad_bboxes"
+init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
+box_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
+frames_path = "D:/datasets/IPN_hand/frames"
+init_path = "D:/Pytorch/YOLOv5/segment_lists"
+box_path = "D:/Pytorch/YOLOv5/final_annot"
 
 random.seed(42)
 colorsl = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(classes_id))]
@@ -545,9 +534,12 @@ class UI(QMainWindow):
 				print("NOT FOUND {}".format(os.path.basename(txt_)))
 
 	def setClean_mode(self, idx):
-		txt_ = self.bad_list[idx]
-		txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
-		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
+		vid_name = self.segments[self.v].split(" ")[0]
+		frame_name = vid_name + "_{:06d}.txt".format(self.i)
+		txt_path = os.path.join(self.sele_path, self.vid_name, frame_name)
+		self.txt_file = txt_path
+		img_ = os.path.join(self.img_path, self.vid_name, frame_name.replace('.txt', '.jpg'))
+		txt_l = []
 		if os.path.exists(txt_path):
 			txt_l = self.read_txt(txt_path)
 			self.set_idcl(int(txt_l[0].split(" ")[0]))
@@ -557,13 +549,7 @@ class UI(QMainWindow):
 			self.set_idc(1)
 			self.text_saved = txt_l
 		else:
-			txt_l = self.read_txt(txt_)
-			self.set_idcl()
-			self.plotter2(txt_l, True, idx=0, img_path=img_, label_=None) 
-			self.buttonDelete.setVisible(False)
-			self.label_msg.setText("")
-			self.set_idc(0)
-			self.text_saved = None
+			print("ERROR: Cant find txt annotation")
 		self.label_frame.setText(os.path.basename(img_))
 		self.radioB1.setVisible(False)
 		self.radioB2.setVisible(False)
@@ -675,8 +661,9 @@ class UI(QMainWindow):
 		if self.pflag or self.sp_H1.isVisible():
 			return
 		txt_path = self.sele_path + os.path.basename(self.bad_list[self.i])
+		txt_path = self.txt_path
 		if not os.path.exists(txt_path):
-			prev_path = self.sele_path + os.path.basename(self.bad_list[self.i+idx])
+			prev_path = self.txt_path + os.path.basename(self.bad_list[self.i+idx])
 			if os.path.exists(prev_path):
 				shutil.copy(prev_path, txt_path)
 				self.setClean_mode(self.i)
@@ -727,7 +714,7 @@ class UI(QMainWindow):
 		self.text_saved = None
 
 		txt_ = self.bad_list[indx]
-		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
+		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace('.txt', '.jpg'))
 
 		bad_txt = self.read_txt(txt_)
 		ano1_txt = self.read_txt(self.ano1_path, os.path.basename(txt_))
@@ -763,26 +750,19 @@ class UI(QMainWindow):
 
 		fname = QFileDialog.getOpenFileName(self, "Open Gesture List", init_path, "Txt Files (*.txt)")
 		iPath = fname[0]
-		self.ext = os.path.splitext(iPath)[-1]
-		txt_path = os.path.dirname(iPath)
-		vid_name = txt_path.split('/')[-1]
+		segments = self.read_txt(iPath)
+		self.v = 0
+		self.idc = int(segments[0].split(" ")[1])
+		self.end_frame = int(segments[0].split(" ")[-1])
+		vid_name = segments[0].split(" ")[0]
 		print(vid_name)
-		self.img_path = "{}/{}/".format(frames_path, vid_name)
-		self.ano1_path = "{}/ipn_11c/{}/".format(Path(iPath).parents[2], vid_name)
-		# self.ano1_path = "{}/ipn_gordo/{}/".format(Path(iPath).parents[2], vid_name)
-		self.ano2_path = "{}/ipn_prune4/{}/".format(Path(iPath).parents[2], vid_name)
+		self.img_path = frames_path
+		self.sele_path = box_path
 
-		self.sele_path = "{}/{}/{}/".format(Path(iPath).parents[2], txt_folder, vid_name)
-		# self.sele_path = "{}/anotations/{}/".format(Path(iPath).parents[2], vid_name)
-		if not os.path.exists(self.sele_path):
-			os.makedirs(self.sele_path)
+		self.i = int(segments[0].split(" ")[2])
+		self.segments = segments
 
-		bad_list = glob.glob("{}/*{}".format(txt_path, self.ext))
-		self.bad_list = os_sorted([s.replace('\\', '/') for s in bad_list])
-
-		self.i = self.bad_list.index(iPath.replace('\\', '/'))
-
-		self.plotter(self.i)
+		self.setClean_mode(self.i)
 		self.vid_name = vid_name
 
 	def open_rep(self):
