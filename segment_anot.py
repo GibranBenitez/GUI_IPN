@@ -561,7 +561,7 @@ class UI(QMainWindow):
 		self.start_frame = int(segment_.split(" ")[2])
 		self.i = self.start_frame
 		self.vid_name = segment_.split(" ")[0]
-		print("  ", self.vid_name)
+		print("  ", self.vid_name, "", self.v, self.i)
 		self.setClean_mode(self.i)
 
 	def prev_segment(self, flagg=False):
@@ -584,7 +584,7 @@ class UI(QMainWindow):
 		self.start_frame = int(segment_.split(" ")[2])
 		self.i = self.start_frame
 		self.vid_name = segment_.split(" ")[0]
-		print("  ", self.vid_name)
+		print("  ", self.vid_name, "", self.v, self.i)
 		self.setClean_mode(self.i)
 
 	def next_(self, flagg=False):
@@ -745,7 +745,7 @@ class UI(QMainWindow):
 		idc = self.set_segments()
 
 		print("***[{}]***".format(classes_id[idc]))
-		print("  ", self.vid_name)
+		print("  ", self.vid_name, "", self.v, self.i)
 		self.setClean_mode(self.i)
 
 	def open_rep(self):
