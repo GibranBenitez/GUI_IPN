@@ -229,6 +229,7 @@ if __name__ == "__main__":
     # anot_path = 'D:/Pytorch/yolov5/runs/test_gordo/anotations'
     # sele_path = 'D:/Pytorch/yolov5/runs/test_gordo/selected_boxes'
     # fin_path = 'D:/Pytorch/yolov5/runs/test_gordo/final_annot'
+    # list_path = 'D:/Pytorch/yolov5/runs/test_gordo/segment_lists'
     # frames_path = "D:/datasets/IPN_hand/frames"
     # anot_path = 'D:/Pytorch/YOLOv5/anotations'
     # sele_path = 'D:/Pytorch/YOLOv5/selected_boxes'
@@ -282,9 +283,9 @@ if __name__ == "__main__":
     if not os.path.exists(os.path.join(list_path, "vid_segments")):
         os.makedirs(os.path.join(list_path, "vid_segments"))
         
-    for vid_a in all_videos:
+    for i, vid_a in enumerate(all_videos):
         folder_ = vid_a.split(sepOS)[-1]
-        print("   Genereting list of "+folder_+"...")
+        print("   Genereting list of [{}] ".format(i)+folder_+"...")
         instances, uniq_cnt = find_SE(os.path.join(vid_a), True)
         save_vid_lists(instances, folder_, list_path)
 

@@ -17,6 +17,9 @@ box_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
 # frames_path = "D:/datasets/IPN_hand/frames"
 # init_path = "D:/Pytorch/YOLOv5/segment_lists"
 # box_path = "D:/Pytorch/YOLOv5/final_annot"
+# frames_path = "E:/datasets/IPN_hand/frames"
+# init_path = "D:/Pytorch/yolov5/runs/test_gordo/segment_lists"
+# box_path = "D:/Pytorch/yolov5/runs/test_gordo/final_annot"
 
 random.seed(42)
 colorsl = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(classes_id))]
@@ -460,6 +463,10 @@ class UI(QMainWindow):
 		if self.pflag:
 			return
 		txt_l = self.text_saved
+		if idx == int(txt_l[0].split(" ")[0]):
+			if self.i != self.start_frame:
+				self.next_()
+				return
 		if txt_l is not None:
 			txt_path = self.txt_file
 			new_l = []
@@ -468,6 +475,12 @@ class UI(QMainWindow):
 				buff_[0] = str(idx)
 				new_l.append(' '.join(buff_))
 			self.write_txt(txt_path, new_l)
+			if self.i == self.start_frame:
+				# self.start_frame += 1 
+				inst, uniq = find_SE(os.path.join(self.sele_path, self.vid_name), True)
+				save_vid_lists(inst, self.vid_name, init_path)
+				save_full_list(self.idc, init_path)
+				self.set_segments()
 		else:
 			print("WARNING: No se puede cambiar clase porque no hay BOX!")
 			return
@@ -626,7 +639,10 @@ class UI(QMainWindow):
 		self.pflag = True
 		j = self.i
 		init_ = self.i if self.i < self.end_frame - 4 else self.start_frame
-		init_ = self.i if fflag else init_
+		if fflag:
+			init_ = self.i
+		elif self.i < self.start_frame:
+			init_ = self.start_frame
 		for j in range(init_, self.all_frames):
 			if self.check_next(j):
 				self.setClean_mode(j)
@@ -743,6 +759,9 @@ class UI(QMainWindow):
 		self.segment_list_path = fname[0]
 		self.v = 0
 		idc = self.set_segments()
+		inst, _ = find_SE(os.path.join(self.sele_path, self.vid_name), True)
+		save_vid_lists(inst, self.vid_name, init_path)
+		save_full_list(idc, init_path)
 
 		print("***[{}]***".format(classes_id[idc]))
 		print("  ", self.vid_name, "", self.v, self.i)
@@ -756,7 +775,6 @@ class UI(QMainWindow):
 		self.report_win.get_ins(inst, uniq, self.vid_name)
 		self.report_win.button.setVisible(False)
 		self.report_win.show()
-		# Aqui vuelve a generar segments con forme a los nuevos reportes
 		self.set_segments()
 
 	def set_segments(self):
