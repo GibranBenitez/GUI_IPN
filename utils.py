@@ -4,6 +4,7 @@ import random
 import shutil
 import cv2
 import numpy as np
+from natsort import natsorted, os_sorted
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
                 "G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o"]
@@ -191,6 +192,29 @@ def find_SE(txt_path_list, lenv = False):
         uniq_cnt[idx] = cnt
     return [instances, uniq_cnt]
 
+def save_vid_lists(instances, folder_, list_path):
+    class_segments = [ [] for _ in range(len(classes_id)) ]
+    for segment_ in instances:
+        segment_ = [str(s) for s in segment_]
+        segment_.insert(0, folder_)
+        for i, class_ in enumerate(classes_id):
+            if i == int(segment_[1]):
+                class_segments[i].append(" ".join(segment_))
+    for i, c_seg_ in enumerate(class_segments):
+        class_ = classes_id[i]
+        write_txt(os.path.join(list_path, "vid_segments", "{}_{}.txt".format("_".join(class_.split(": ")), folder_)), c_seg_)
+    return class_segments
+
+def save_full_list(idc, list_path):
+    class_ = classes_id[idc]
+    class_list = glob.glob(os.path.join(list_path, "vid_segments") + "/{}*".format("_".join(class_.split(": "))))
+    list_full = []
+    for list_ in class_list:
+        list_full = list_full + read_txt(list_)
+    list_full = os_sorted(list_full)        
+    write_txt(os.path.join(list_path, "{}.txt".format("_".join(class_.split(": ")))), list_full)
+    return list_full
+
 if __name__ == "__main__":
 
     sepOS = '\\'    # Windows
@@ -255,23 +279,21 @@ if __name__ == "__main__":
     print(fin_path)
     if not os.path.exists(list_path):
         os.makedirs(list_path)
-    full_segments = []
-    class_segments = [ [] for _ in range(len(classes_id)) ]
+    if not os.path.exists(os.path.join(list_path, "vid_segments")):
+        os.makedirs(os.path.join(list_path, "vid_segments"))
+        
     for vid_a in all_videos:
         folder_ = vid_a.split(sepOS)[-1]
         print("   Genereting list of "+folder_+"...")
         instances, uniq_cnt = find_SE(os.path.join(vid_a), True)
-        for segment_ in instances:
-            segment_ = [str(s) for s in segment_]
-            segment_.insert(0, folder_)
-            for i, class_ in enumerate(classes_id):
-                if i == int(segment_[1]):
-                    class_segments[i].append(" ".join(segment_))
-    print("Saving lists in txt:")
-    for i, list_ in enumerate(class_segments):
+        save_vid_lists(instances, folder_, list_path)
+
+    print("Saving full lists of {} videos...".format(len(all_videos)))
+    full_segments = []
+    for i, class_ in enumerate(classes_id):
         class_ = classes_id[i]
+        list_ = save_full_list(i, list_path)
         full_segments += list_
-        write_txt(os.path.join(list_path, "{}.txt".format("_".join(class_.split(": ")))), list_)
         print("   {}: {} instances".format(class_, len(list_)))
 
     write_txt(os.path.join(list_path, "Z_Full.txt"), full_segments)

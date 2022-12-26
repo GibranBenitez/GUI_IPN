@@ -5,8 +5,7 @@ from PyQt5.QtGui import QPixmap, QKeySequence, QKeyEvent
 from pathlib import Path
 import sys, glob, os, time, random, shutil 
 from threading import Timer
-from natsort import natsorted, os_sorted, realsorted, humansorted
-from utils import draw_boxes, draw_change_boxes, xml_to_yolo, find_SE
+from utils import draw_boxes, draw_change_boxes, xml_to_yolo, find_SE, save_vid_lists, save_full_list
 from report import UI_report
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
@@ -91,6 +90,8 @@ class UI(QMainWindow):
 		self.shi_O.activated.connect(lambda: self.play_back(True))
 		self.shi_M = QShortcut(QKeySequence('Shift+M'), self)
 		self.shi_M.activated.connect(self.next_segment)
+		self.ctr_M = QShortcut(QKeySequence('Ctrl+M'), self)
+		self.ctr_M.activated.connect(self.open_rep)
 		self.shi_N = QShortcut(QKeySequence('Shift+N'), self)
 		self.shi_N.activated.connect(self.prev_segment)
 		self.shi_L = QShortcut(QKeySequence('Shift+L'), self)
@@ -433,41 +434,6 @@ class UI(QMainWindow):
 		if e.key() == Qt.Key_F11:
 			self.cambia_class(13)
 
-		# if e.key() == Qt.Key_1:
-		# 	if self.sp_H1.isVisible():
-		# 		if len(self.text_chosen) > 1:
-		# 			self.choose_change = 0
-		# 			self.change_spb("change_mod")
-		# 	if self.radS1.isVisible():
-		# 		self.radS1.setChecked(True)
-		# 		self.radS2.setChecked(False)
-		# 		self.radS3.setChecked(False)
-		# 		self.radS4.setChecked(False)
-		# if e.key() == Qt.Key_2:
-		# 	if self.sp_H1.isVisible():
-		# 		if len(self.text_chosen) > 1:
-		# 			self.choose_change = 1
-		# 			self.change_spb("change_mod")
-		# 		else:
-		# 			self.choose_change = 0
-		# 	if self.radS2.isVisible():
-		# 		self.radS2.setChecked(True)
-		# 		self.radS1.setChecked(False)
-		# 		self.radS3.setChecked(False)
-		# 		self.radS4.setChecked(False)
-		# if e.key() == Qt.Key_3:
-		# 	if self.radS3.isVisible():
-		# 		self.radS3.setChecked(True)
-		# 		self.radS1.setChecked(False)
-		# 		self.radS2.setChecked(False)
-		# 		self.radS4.setChecked(False)
-		# if e.key() == Qt.Key_4:
-		# 	if self.radS4.isVisible():
-		# 		self.radS4.setChecked(True)
-		# 		self.radS1.setChecked(False)
-		# 		self.radS2.setChecked(False)
-		# 		self.radS3.setChecked(False)
-
 	def rotate_checked(self):
 		if self.radS2.isVisible() and self.radS1.isChecked():
 			self.radS2.setChecked(True)
@@ -525,7 +491,7 @@ class UI(QMainWindow):
 			txt_path = self.txt_file
 			if os.path.exists(txt_path):
 				os.remove(txt_path)
-				self.plotter(self.i)
+				self.setClean_mode(self.i)
 				self.label_msg.setText("Chosen Deleted")
 				self.set_idc(2)
 				self.text_chosen = None
@@ -534,7 +500,10 @@ class UI(QMainWindow):
 				print("NOT FOUND {}".format(os.path.basename(txt_)))
 
 	def setClean_mode(self, idx):
-		frame_name = self.vid_name + "_{:06d}.txt".format(self.i)
+		if idx < 1:
+			idx = 1
+			self.i = 1
+		frame_name = self.vid_name + "_{:06d}.txt".format(idx)
 		txt_path = os.path.join(self.sele_path, self.vid_name, frame_name)
 		self.txt_file = txt_path
 		img_ = os.path.join(self.img_path, self.vid_name, frame_name.replace('.txt', '.jpg'))
@@ -548,7 +517,12 @@ class UI(QMainWindow):
 			self.set_idc(1)
 			self.text_saved = txt_l
 		else:
-			print("ERROR: Cant find txt annotation")
+			self.set_idcl(0)
+			self.plotter2(["0 0.0 0.0 0.0 0.0"], True, idx=-1, img_path=img_)
+			self.label_msg.setText("NO BBOX")
+			self.buttonDelete.setVisible(False)
+			self.set_idc(2)
+			self.text_saved = None
 		self.label_frame.setText(os.path.basename(img_))
 		self.radioB1.setVisible(False)
 		self.radioB2.setVisible(False)
@@ -570,12 +544,15 @@ class UI(QMainWindow):
 	def next_segment(self, flagg=False):
 		if self.pflag:
 			return
-		if self.v < len(self.segments) - 2:
+		if self.v < len(self.segments) - 1:
 			if not flagg:
 				self.v += 4
 			else:
 				self.v += 1
 		else:
+			self.v = len(self.segments) - 1
+			return
+		if self.v > len(self.segments) - 1:
 			self.v = len(self.segments) - 1
 		segment_ = self.segments[self.v]
 		self.idc = int(segment_.split(" ")[1])
@@ -584,7 +561,7 @@ class UI(QMainWindow):
 		self.start_frame = int(segment_.split(" ")[2])
 		self.i = self.start_frame
 		self.vid_name = segment_.split(" ")[0]
-		print(self.vid_name)
+		print("  ", self.vid_name)
 		self.setClean_mode(self.i)
 
 	def prev_segment(self, flagg=False):
@@ -597,6 +574,9 @@ class UI(QMainWindow):
 				self.v -= 1
 		else:
 			self.v = 0
+			return
+		if self.v < 0:
+			self.v = 0
 		segment_ = self.segments[self.v]
 		self.idc = int(segment_.split(" ")[1])
 		self.all_frames = int(segment_.split(" ")[-1])
@@ -604,7 +584,7 @@ class UI(QMainWindow):
 		self.start_frame = int(segment_.split(" ")[2])
 		self.i = self.start_frame
 		self.vid_name = segment_.split(" ")[0]
-		print(self.vid_name)
+		print("  ", self.vid_name)
 		self.setClean_mode(self.i)
 
 	def next_(self, flagg=False):
@@ -644,18 +624,22 @@ class UI(QMainWindow):
 			return
 		self.flag = False
 		self.pflag = True
-		for j in range(self.i, self.all_frames):
+		j = self.i
+		init_ = self.i if self.i < self.end_frame - 4 else self.start_frame
+		init_ = self.i if fflag else init_
+		for j in range(init_, self.all_frames):
 			if self.check_next(j):
 				self.setClean_mode(j)
-				app.processEvents()
-				time.sleep(0.001)
+			elif fflag:
+				self.setClean_mode(j)
 			else:
-				self.i = j - 1
-				self.flag = False
-				self.pflag = False
+				j = j-1
+				app.processEvents()
 				break
+			app.processEvents()
 			if self.flag:
 				break
+			time.sleep(0.001)
 		self.i = j
 		self.flag = False
 		self.pflag = False
@@ -663,16 +647,21 @@ class UI(QMainWindow):
 	def play_back(self, fflag=False):
 		if self.pflag:
 			return
+		if not fflag:
+			self.i = self.start_frame
+			self.setClean_mode(self.i)
+			return
 		self.flag = False
 		self.pflag = True
-		j = 0
+		j = self.i
 		for j in range(self.i, 0, -1):
 			if self.check_next(j):
 				self.setClean_mode(j)
+			elif fflag:
+				self.setClean_mode(j)
 			else:
-				self.i = j + 1
-				self.flag = False
-				self.pflag = False
+				sj = j + 1
+				app.processEvents()
 				break
 			app.processEvents()
 			if self.flag:
@@ -707,7 +696,7 @@ class UI(QMainWindow):
 					text_list.append(line_.strip())
 			return text_list
 		except:
-			return ["NO BBOX u.u"]
+			return ["0 0.0 0.0 0.0 0.0"]
 
 	def write_txt(self, txt_path, text_list=None):
 		if text_list is not None:
@@ -745,94 +734,44 @@ class UI(QMainWindow):
 		pixmap = QPixmap("temp_img2.jpg")
 		self.label.setPixmap(pixmap)
 
-	def plotter(self, indx):
-		self.label_msg.setText("")
-		self.set_idc(0)
-		self.buttonDelete.setVisible(False)
-		self.radioB1.setVisible(True)
-		self.radioB2.setVisible(True)
-		self.radioNo.setVisible(True)
-		self.radS1.setVisible(False)
-		self.radS2.setVisible(False)
-		self.radS3.setVisible(False)
-		self.radS4.setVisible(False)
-		self.radS1.setChecked(False)
-		self.radS2.setChecked(False)
-		self.radS3.setChecked(False)
-		self.radS4.setChecked(False)
-		self.buttonAll.setVisible(False)
-		self.buttonReport.setVisible(True)
-		self.radioNo.setChecked(True)
-		self.sp_H1.setVisible(False)
-		self.sp_H2.setVisible(False)
-		self.sp_W1.setVisible(False)
-		self.sp_W2.setVisible(False)
-		self.text_change = None
-		self.text_chosen = None
-		self.choose_change = 0
-		self.text_saved = None
-
-		txt_ = self.bad_list[indx]
-		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace('.txt', '.jpg'))
-
-		bad_txt = self.read_txt(txt_)
-		ano1_txt = self.read_txt(self.ano1_path, os.path.basename(txt_))
-		if len(ano1_txt) < 2 and ano1_txt[0].split()[0] == "NO":
-			self.radioB1.setVisible(False)
-		ano2_txt = self.read_txt(self.ano2_path, os.path.basename(txt_))
-		if len(ano2_txt) < 2 and ano2_txt[0].split()[0] == "NO":
-			self.radioB2.setVisible(False)
-		draw_ = draw_boxes(img_, bad_txt, colors[0], None, False)
-		draw_ = draw_boxes(img_, ano1_txt, colors[1], "bbox1", False, draw_)
-		draw_boxes(img_, ano2_txt, colors[2], "bbox2", True, draw_, True)
-		self.ano1 = ano1_txt
-		self.ano2 = ano2_txt
-		# Open the image
-		pixmap = QPixmap("temp_img.jpg")
-		# Add pic to label
-		self.label.setPixmap(pixmap)
-		self.label_frame.setText(os.path.basename(img_))
-		txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
-		if os.path.exists(txt_path):
-			txt_l = self.read_txt(txt_path)
-			self.set_idcl(int(txt_l[0].split(" ")[0]))
-			self.plotter2(txt_l, True)
-			self.label_msg.setText("{} BBOX Chosen".format(len(txt_l)))
-			self.buttonDelete.setVisible(True)
-			self.set_idc(1)
-
 	def clicker(self):
-		self.buttonSend.setVisible(True)
-		self.radioB1.setVisible(True)
-		self.radioB2.setVisible(True)
-		self.radioNo.setVisible(True)
+		self.buttonReport.setVisible(True)
 		self.img_path = frames_path
 		self.sele_path = box_path
 
 		fname = QFileDialog.getOpenFileName(self, "Open Gesture List", init_path, "Txt Files (*.txt)")
-		iPath = fname[0]
-		segments = os_sorted(self.read_txt(iPath))
-		vid_name = segments[0].split(" ")[0]
-		print(vid_name)
-
-		self.idc = int(segments[0].split(" ")[1])
-		self.all_frames = int(segments[0].split(" ")[-1])
-		self.end_frame = int(segments[0].split(" ")[3])
-		self.start_frame = int(segments[0].split(" ")[2])
-		self.i = self.start_frame
+		self.segment_list_path = fname[0]
 		self.v = 0
-		self.vid_name = segments[self.v].split(" ")[0]
-		self.segments = segments
+		idc = self.set_segments()
+
+		print("***[{}]***".format(classes_id[idc]))
+		print("  ", self.vid_name)
 		self.setClean_mode(self.i)
 
 	def open_rep(self):
-		inst, uniq = find_SE(self.sele_path)
+		inst, uniq = find_SE(os.path.join(self.sele_path, self.vid_name), True)
+		save_vid_lists(inst, self.vid_name, init_path)
+		save_full_list(self.idc, init_path)
 		self.report_win = UI_report(self)
 		self.report_win.get_ins(inst, uniq, self.vid_name)
+		self.report_win.button.setVisible(False)
 		self.report_win.show()
+		# Aqui vuelve a generar segments con forme a los nuevos reportes
+		self.set_segments()
 
-	def close_rep(self):
-		self.report_win.close()
+	def set_segments(self):
+		segments = self.read_txt(self.segment_list_path)
+		if self.v > len(segments) - 1:
+			self.v = len(segments) - 1
+		idc = int(segments[self.v].split(" ")[1])
+		self.idc = idc
+		self.all_frames = int(segments[self.v].split(" ")[-1])
+		self.end_frame = int(segments[self.v].split(" ")[3])
+		self.start_frame = int(segments[self.v].split(" ")[2])
+		self.i = self.start_frame
+		self.vid_name = segments[self.v].split(" ")[0]
+		self.segments = segments
+		return idc
 
 if __name__ == "__main__":
 	# Initialize the app

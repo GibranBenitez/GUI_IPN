@@ -204,7 +204,8 @@ class UI_report(QMainWindow):
 
 	def keyPressEvent(self, e):
 		if e.key() == Qt.Key_Q:
-			self.clicker(self.MainWindow)
+			if self.button.isVisible():
+				self.clicker(self.MainWindow)
 		# if e.key() == Qt.Key_1:
 		# 	self.cambia_class(1)
 		# if e.key() == Qt.Key_2:
