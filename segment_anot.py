@@ -18,8 +18,8 @@ box_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
 # init_path = "D:/Pytorch/YOLOv5/segment_lists"
 # box_path = "D:/Pytorch/YOLOv5/final_annot"
 # frames_path = "E:/datasets/IPN_hand/frames"
-# init_path = "D:/Pytorch/yolov5/runs/test_gordo/segment_lists"
-# box_path = "D:/Pytorch/yolov5/runs/test_gordo/final_annot"
+# init_path = "D:/Pytorch/yolov5/runs/test_gordo/segment_lists_test"
+# box_path = "D:/Pytorch/yolov5/runs/test_gordo/final_annot_test"
 
 random.seed(42)
 colorsl = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(classes_id))]
@@ -476,11 +476,11 @@ class UI(QMainWindow):
 				new_l.append(' '.join(buff_))
 			self.write_txt(txt_path, new_l)
 			if self.i == self.start_frame:
-				# self.start_frame += 1 
-				inst, uniq = find_SE(os.path.join(self.sele_path, self.vid_name), True)
-				save_vid_lists(inst, self.vid_name, init_path)
-				save_full_list(self.idc, init_path)
-				self.set_segments()
+				self.start_frame += 1 
+				# inst, uniq = find_SE(os.path.join(self.sele_path, self.vid_name), True)
+				# save_vid_lists(inst, self.vid_name, init_path)
+				# save_full_list(self.idc, init_path)
+				# self.set_segments()
 		else:
 			print("WARNING: No se puede cambiar clase porque no hay BOX!")
 			return
