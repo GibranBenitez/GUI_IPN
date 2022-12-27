@@ -88,7 +88,7 @@ class UI(QMainWindow):
 		self.shi_A = QShortcut(QKeySequence('Shift+A'), self)
 		self.shi_A.activated.connect(self.gen_2ndBox)
 		self.shi_P = QShortcut(QKeySequence('Shift+P'), self)
-		self.shi_P.activated.connect(lambda: self.play_(True))
+		self.shi_P.activated.connect(lambda: self.play_("free"))
 		self.shi_O = QShortcut(QKeySequence('Shift+O'), self)
 		self.shi_O.activated.connect(lambda: self.play_back(True))
 		self.shi_M = QShortcut(QKeySequence('Shift+M'), self)
@@ -99,8 +99,12 @@ class UI(QMainWindow):
 		self.shi_N.activated.connect(self.prev_segment)
 		self.shi_L = QShortcut(QKeySequence('Shift+L'), self)
 		self.shi_L.activated.connect(self.play_)
+		self.ctr_L = QShortcut(QKeySequence('Ctrl+L'), self)
+		self.ctr_L.activated.connect(lambda: self.play_("end"))
 		self.shi_K = QShortcut(QKeySequence('Shift+K'), self)
 		self.shi_K.activated.connect(self.play_back)
+		self.ctr_K = QShortcut(QKeySequence('Ctrl+K'), self)
+		self.ctr_K.activated.connect(self.play_back)
 		self.shi_Z = QShortcut(QKeySequence('Shift+Z'), self)
 		self.shi_Z.activated.connect(self.copy_bbox)
 		self.shi_S = QShortcut(QKeySequence('Shift+S'), self)
@@ -632,21 +636,25 @@ class UI(QMainWindow):
 			self.i = 0
 		self.setClean_mode(self.i)
 
-	def play_(self, fflag=False):
+	def play_(self, fflag="seg"):
 		if self.pflag:
+			return
+		if fflag == "end":
+			self.i = self.end_frame
+			self.setClean_mode(self.i)
 			return
 		self.flag = False
 		self.pflag = True
 		j = self.i
 		init_ = self.i if self.i < self.end_frame - 4 else self.start_frame
-		if fflag:
+		if fflag == "free":
 			init_ = self.i
 		elif self.i < self.start_frame:
 			init_ = self.start_frame
 		for j in range(init_, self.all_frames):
 			if self.check_next(j):
 				self.setClean_mode(j)
-			elif fflag:
+			elif fflag == "free":
 				self.setClean_mode(j)
 			else:
 				j = j-1
@@ -759,8 +767,6 @@ class UI(QMainWindow):
 		self.segment_list_path = fname[0]
 		self.v = 0
 		idc = self.set_segments()
-		inst, _ = find_SE(os.path.join(self.sele_path, self.vid_name), True)
-		save_vid_lists(inst, self.vid_name, init_path)
 		save_full_list(idc, init_path)
 
 		print("***[{}]***".format(classes_id[idc]))
