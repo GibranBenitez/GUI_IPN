@@ -15,13 +15,13 @@ fin_mode = True
 # fin_mode = False
 frames_path = "F:\\IPN_Hand\\frames"
 # frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
-# frames_path = "E:/datasets/IPN_hand/frames"
+frames_path = "E:/datasets/IPN_hand/frames"
 # frames_path = "D:/datasets/IPN_hand/frames"
 
 if fin_mode:
 	txt_folder = "final_annot_test"
 	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\" + txt_folder
-	# init_path = "D:/Pytorch/yolov5/runs/test_gordo/" + txt_folder
+	init_path = "D:/Pytorch/yolov5/runs/test_gordo/" + txt_folder
 	# init_path = "D:/Pytorch/YOLOv5/" + txt_folder
 else:
 	txt_folder = "selected_boxes"

@@ -9,7 +9,7 @@ from utils import draw_boxes, draw_change_boxes, xml_to_yolo, find_SE, save_vid_
 from report import UI_report
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
-				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", "G12: Catch", ""]
+				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", "G12: Grab", ""]
 
 frames_path = "F:\\IPN_Hand\\frames"
 init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\segment_lists"
@@ -768,8 +768,9 @@ class UI(QMainWindow):
 		fname = QFileDialog.getOpenFileName(self, "Open Gesture List", init_path, "Txt Files (*.txt)")
 		self.segment_list_path = fname[0]
 		self.v = 0
-		idc = self.set_segments()
+		idc = int(self.read_txt(self.segment_list_path)[self.v].split(" ")[1])
 		save_full_list(idc, init_path)
+		self.set_segments()
 
 		print("***[{}]***".format(classes_id[idc]))
 		print("  ", self.vid_name, "", self.v, self.i)
@@ -797,7 +798,6 @@ class UI(QMainWindow):
 		self.i = self.start_frame
 		self.vid_name = segments[self.v].split(" ")[0]
 		self.segments = segments
-		return idc
 
 if __name__ == "__main__":
 	# Initialize the app
