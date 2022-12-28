@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>26</x>
-      <y>125</y>
+      <y>115</y>
       <width>231</width>
-      <height>581</height>
+      <height>591</height>
      </rect>
     </property>
     <property name="font">
@@ -215,6 +215,20 @@
      </item>
      <item>
       <widget class="QLabel" name="lb_13">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>G09: 2click-2f: 12</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lb_16">
        <property name="font">
         <font>
          <pointsize>14</pointsize>
@@ -901,7 +915,7 @@
      <x>0</x>
      <y>0</y>
      <width>717</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

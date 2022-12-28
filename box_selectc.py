@@ -10,7 +10,7 @@ from utils import draw_boxes, draw_change_boxes, xml_to_yolo, find_SE
 from report import UI_report
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
-				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", ""]
+				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", "G12: Catch", ""]
 fin_mode = True
 # fin_mode = False
 frames_path = "F:\\IPN_Hand\\frames"
@@ -19,15 +19,13 @@ frames_path = "F:\\IPN_Hand\\frames"
 # frames_path = "D:/datasets/IPN_hand/frames"
 
 if fin_mode:
-	txt_folder = "final_annot"
-	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\final_annot"
-	# init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
-	# init_path = "D:/Pytorch/yolov5/runs/test_gordo/final_annot"
-	# init_path = "D:/Pytorch/YOLOv5/final_annot"
+	txt_folder = "final_annot_test"
+	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\" + txt_folder
+	# init_path = "D:/Pytorch/yolov5/runs/test_gordo/" + txt_folder
+	# init_path = "D:/Pytorch/YOLOv5/" + txt_folder
 else:
 	txt_folder = "selected_boxes"
-	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\bad_bboxes"
-	# init_path = "C:/Users/gjben/Documents/yolov5/runs/detect/bad_bunny"
+	# init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\bad_bboxes"
 	# init_path = "D:/Pytorch/yolov5/runs/test_gordo/bad_bboxes"
 	# init_path = "D:/Pytorch/YOLOv5/bad_bboxes"
 
@@ -442,6 +440,8 @@ class UI(QMainWindow):
 			self.cambia_class(12)
 		if e.key() == Qt.Key_F11:
 			self.cambia_class(13)
+		if e.key() == Qt.Key_F12:
+			self.cambia_class(14)
 
 		# if e.key() == Qt.Key_1:
 		# 	if self.sp_H1.isVisible():

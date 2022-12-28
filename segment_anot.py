@@ -9,7 +9,7 @@ from utils import draw_boxes, draw_change_boxes, xml_to_yolo, find_SE, save_vid_
 from report import UI_report
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
-				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", ""]
+				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", "G12: Catch", ""]
 
 frames_path = "F:\\IPN_Hand\\frames"
 init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\segment_lists"
@@ -440,6 +440,8 @@ class UI(QMainWindow):
 			self.cambia_class(12)
 		if e.key() == Qt.Key_F11:
 			self.cambia_class(13)
+		if e.key() == Qt.Key_F12:
+			self.cambia_class(14)
 
 	def rotate_checked(self):
 		if self.radS2.isVisible() and self.radS1.isChecked():

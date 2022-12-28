@@ -7,7 +7,7 @@ import sys, glob, os, time, random, shutil
 from threading import Timer
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
-				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o"]
+				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", "G12: Catch"]
 random.seed(42)
 colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(classes_id))]
 colors.append([255, 255, 255])
@@ -42,6 +42,7 @@ class UI_report(QMainWindow):
 		self.lb13 = self.findChild(QLabel, "lb_13")
 		self.lb14 = self.findChild(QLabel, "lb_14")
 		self.lb15 = self.findChild(QLabel, "lb_15")
+		self.lb16 = self.findChild(QLabel, "lb_16")
 
 		self.rb0 = self.findChild(QRadioButton, "rb_0")
 		self.rb1 = self.findChild(QRadioButton, "rb_1")
@@ -276,6 +277,8 @@ class UI_report(QMainWindow):
 			pb = self.lb12
 		elif idx == 13:
 			pb = self.lb13
+		elif idx == 14:
+			pb = self.lb16
 		pb.setText("{}: [{}]".format(classes_id[idx], cnt))
 		col_ = "rgb(0,0,0)" if cnt > 0 else "rgb(195,0,0)"
 		if cnt > 3:
