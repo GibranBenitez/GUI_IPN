@@ -11,20 +11,23 @@ from report import UI_report
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
 				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", "G12: Catch", ""]
+
 fin_mode = True
 # fin_mode = False
-frames_path = "F:\\IPN_Hand\\frames"
+frames_path = "C:\\Users\\Luis Bringas\\Desktop\\NEW_IPN_final_frames"
 # frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
-frames_path = "E:/datasets/IPN_hand/frames"
+#frames_path = "E:/datasets/IPN_hand/frames"
 # frames_path = "D:/datasets/IPN_hand/frames"
 
 if fin_mode:
-	txt_folder = "final_annot_test"
-	init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\" + txt_folder
-	init_path = "D:/Pytorch/yolov5/runs/test_gordo/" + txt_folder
+	txt_folder = "NEW_IPN_annotations_txt"
+	init_path = "C:\\Users\\Luis Bringas\\Desktop\\" + txt_folder
+	#init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\" + txt_folder
+	#init_path = "D:/Pytorch/yolov5/runs/test_gordo/" + txt_folder
 	# init_path = "D:/Pytorch/YOLOv5/" + txt_folder
 else:
-	txt_folder = "selected_boxes"
+	txt_folder = "NEW_IPN_annotations_txt"
+	init_path = "C:\\Users\\Luis Bringas\\Desktop\\" + txt_folder
 	# init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\bad_bboxes"
 	# init_path = "D:/Pytorch/yolov5/runs/test_gordo/bad_bboxes"
 	# init_path = "D:/Pytorch/YOLOv5/bad_bboxes"
@@ -504,6 +507,7 @@ class UI(QMainWindow):
 		if self.pflag:
 			return
 		txt_l = self.text_saved
+		print(txt_l)
 		if txt_l is not None:
 			txt_path = os.path.join(self.sele_path, os.path.basename(self.bad_list[self.i]))
 			new_l = []
@@ -523,14 +527,25 @@ class UI(QMainWindow):
 		elif idx == 2:
 			self.label_msg.setText("CLS a B0B")
 		else:
-			self.label_msg.setText("CLS aD0X!!")
+			self.label_msg.setText("CLS a D0X!!")
 		self.next_(True)
 
 	def del_chosen(self):
 		if self.pflag:
 			return
 		if self.sp_H1.isVisible():
-			self.setClean_mode(self.i)
+			if len(self.text_chosen) > 1:
+				
+				popped = self.text_chosen.pop(self.choose_change)
+				print("WARNING: {} deleted: {}".format(self.choose_change, popped))
+				self.choose_change = 0
+				self.change_spb("change_mod")
+				self.send_box(False)
+				self.setClean_mode(self.i)
+			else:
+				self.setClean_mode(self.i)
+		# if self.sp_H1.isVisible():
+		# 	self.setClean_mode(self.i)
 		else:
 			txt_ = self.bad_list[self.i]
 			txt_path = os.path.join(self.sele_path, os.path.basename(txt_))
@@ -763,11 +778,13 @@ class UI(QMainWindow):
 
 		fname = QFileDialog.getOpenFileName(self, "Open BadBox Annot", init_path, "Txt Files (*.txt)")
 		iPath = fname[0]
+		print("iPath: ",iPath)
 		self.ext = os.path.splitext(iPath)[-1]
 		txt_path = os.path.dirname(iPath)
 		vid_name = txt_path.split('/')[-1]
 		print(vid_name)
 		self.img_path = "{}/{}/".format(frames_path, vid_name)
+		#self.ano1_path = "C:/Users/Luis Bringas/Desktop/YOLO_ima_detections/{}/".format(vid_name)
 		self.ano1_path = "{}/ipn_11c/{}/".format(Path(iPath).parents[2], vid_name)
 		# self.ano1_path = "{}/ipn_gordo/{}/".format(Path(iPath).parents[2], vid_name)
 		self.ano2_path = "{}/ipn_prune4/{}/".format(Path(iPath).parents[2], vid_name)
