@@ -13,8 +13,8 @@
 - **[2]**	    Selecciona la caja 2 del BBOX activado. Diferente si esta en Change MODE.
 - **[3]**	    Selecciona la caja 3 del BBOX activado.
 - **[4]**	    Selecciona la caja 4 del BBOX activado.
-- **[Z]**	    Copia el bbox sleccionado del frame anterior.
-- **[Shf+Z]**	Copia el bbox sleccionado del frame siguiente.
+- **[Z]**	    Copia el txt del frame anterior.
+- **[Shf+Z]**	Copia el txt del frame siguiente.
 - **[F]**	    Elimina el txt de frame actual.
 
 #### Navegacion
@@ -60,3 +60,14 @@
 - **[S]**               Stop play
 - **[M]**               Next frame
 - **[N]**               Prev frame
+
+### duplicar_bbox.py
+
+- **bbox_file**         Debemos poner el path del txt maestro, el cual contiene la box que se va a copiar (Mano estatica)
+- **frames_path**       Debemos de poner el path de los txt del video al cual le vamos a agregar cajas
+- **frame_range**       Solamente debemos de agregar el numero del frame inicial y final a los que les vamos a pegar la box
+   - No debemos de agregar ceros a la izquierda, por ejemplo si vamos agregar una box de los frames 000001 al 000200, solamente vamos a poner [1,200]
+
+### Reglas para anotar
+
+- Si se lleva a ver un nudillo de las manos inactivas se deben de anotar
