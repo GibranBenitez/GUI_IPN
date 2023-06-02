@@ -61,13 +61,15 @@
 - **[M]**               Next frame
 - **[N]**               Prev frame
 
-### duplicar_bbox.py
+# duplicar_bbox.py
 
 - **bbox_file**         Debemos poner el path del txt maestro, el cual contiene la box que se va a copiar (Mano estatica)
 - **frames_path**       Debemos de poner el path de los txt del video al cual le vamos a agregar cajas
 - **frame_range**       Solamente debemos de agregar el numero del frame inicial y final a los que les vamos a pegar la box
    - No debemos de agregar ceros a la izquierda, por ejemplo si vamos agregar una box de los frames 000001 al 000200, solamente vamos a poner [1,200]
 
-### Reglas para anotar
+# Reglas para anotar
 
-- Si se lleva a ver un nudillo de las manos inactivas se deben de anotar
+- Si se lleva a ver un nudillo de las manos inactivas se deben de anotar.
+- Se deben de anotar todas las manos que esten visibles o reconocibles.
+- Para las manos secundarias (que no estan haciendo el gesto) se debe de tener como minimo un IoU del 50% entre la mano y la caja.

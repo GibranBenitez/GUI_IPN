@@ -325,7 +325,7 @@ class UI(QMainWindow):
 	def gen_2ndBox(self):
 		if self.pflag:
 			return
-		if self.sp_H1.isVisible() and len(self.text_chosen) < 2:
+		if self.sp_H1.isVisible() and len(self.text_chosen) < 3:
 			self.choose_change = 1
 			self.text_chosen = self.text_chosen + ['0 0.5 0.5 0.2 0.2']
 			self.change_spb("change_mod")
