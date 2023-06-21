@@ -12,18 +12,19 @@ from report import UI_report
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
 				"G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", "G12: Catch", ""]
 
-#Poner desmadre de las rutas
-
 fin_mode = True
 # fin_mode = False
-frames_path = "C:\\Users\\Luis Bringas\\Desktop\\NEW_IPN_final_frames"
+frames_path = "F:\\IPN_Hand\\frames" #old IPN
+# frames_path = "C:\\Users\\Luis Bringas\\Desktop\\NEW_IPN_final_frames"
 # frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
 #frames_path = "E:/datasets/IPN_hand/frames"
 # frames_path = "D:/datasets/IPN_hand/frames"
 
 if fin_mode:
-	txt_folder = "NEW_IPN_annotations_txt"
-	init_path = "C:\\Users\\Luis Bringas\\Desktop\\" + txt_folder
+	# txt_folder = "NEW_IPN_annotations_txt"
+	txt_folder = "final_annot_test"
+	init_path = "F:\\IPN_Hand\\annotations\\final_annots_yolo\\" + txt_folder
+	# init_path = "C:\\Users\\Luis Bringas\\Desktop\\" + txt_folder
 	#init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\" + txt_folder
 	#init_path = "D:/Pytorch/yolov5/runs/test_gordo/" + txt_folder
 	# init_path = "D:/Pytorch/YOLOv5/" + txt_folder
@@ -101,6 +102,7 @@ class UI(QMainWindow):
 
 		self.shi_A = QShortcut(QKeySequence('Shift+A'), self)
 		self.shi_A.activated.connect(self.gen_2ndBox)
+		self.f2nd = False
 		self.shi_P = QShortcut(QKeySequence('Shift+P'), self)
 		self.shi_P.activated.connect(lambda: self.play_(True))
 		self.shi_O = QShortcut(QKeySequence('Shift+O'), self)
@@ -154,6 +156,7 @@ class UI(QMainWindow):
 		self.show()
 
 	def change_spb(self, opt):
+		self.f2nd = False
 		if opt == "change_mod":
 			self.sp_H1.setVisible(True)
 			self.sp_H2.setVisible(True)
@@ -325,163 +328,13 @@ class UI(QMainWindow):
 	def gen_2ndBox(self):
 		if self.pflag:
 			return
-		if self.sp_H1.isVisible() and len(self.text_chosen) < 3:
-			self.choose_change = 1
+		if self.f2nd:
+			return
+		self.f2nd = True
+		if self.sp_H1.isVisible() and len(self.text_chosen) < 4:
+			self.choose_change = len(self.text_chosen)
 			self.text_chosen = self.text_chosen + ['0 0.5 0.5 0.2 0.2']
 			self.change_spb("change_mod")
-
-	def keyPressEvent(self, e):
-		# print(e.key())
-		if e.key() == Qt.Key_A or e.key() == 16777219:
-			self.send_box()
-		if e.key() == 93 or e.key() == 16777252:
-			self.send_box(False)
-		if e.key() == Qt.Key_P:
-			self.next_()
-		if e.key() == Qt.Key_O:
-			self.back_()
-		if e.key() == Qt.Key_M:
-			self.open_rep()
-		if e.key() == Qt.Key_N:
-			self.close_rep()
-		if e.key() == Qt.Key_L:
-			self.next_(True)
-		if e.key() == Qt.Key_K:
-			self.back_(True)
-		if e.key() == Qt.Key_Z:
-			self.copy_bbox(-1)
-		if e.key() == Qt.Key_F:
-			self.del_chosen()
-
-		if e.key() == Qt.Key_S:
-			if self.pflag:
-				self.flag = True
-			else:
-				if self.sp_H1.isVisible():
-					self.change_spb("H1_1")
-				elif not self.radioNo.isVisible():
-					self.change_spb("change_mod")
-				else:
-					self.setClean_mode(self.i)
-		if e.key() == Qt.Key_D:
-			if self.sp_H1.isVisible():
-				self.change_spb("H2_1")
-			elif not self.radioNo.isVisible():
-				self.change_spb("change_mod")
-			else:
-				self.setClean_mode(self.i)
-		if e.key() == Qt.Key_X:
-			if self.sp_H1.isVisible():
-				self.change_spb("W1_1")
-			elif not self.radioNo.isVisible():
-				self.change_spb("change_mod")
-			else:
-				self.setClean_mode(self.i)
-		if e.key() == Qt.Key_C:
-			if self.sp_H1.isVisible():
-				self.change_spb("W2_1")
-			elif not self.radioNo.isVisible():
-				self.change_spb("change_mod")
-			else:
-				self.setClean_mode(self.i)
-
-		if e.key() == Qt.Key_E:
-			self.radioNo.setChecked(True)
-		if e.key() == Qt.Key_Q:
-			if self.radioB1.isVisible():
-				if self.radioB1.isChecked():
-					if self.radS1.isVisible():
-						self.rotate_checked()
-				else:
-					self.radioB1.setChecked(True)
-		if e.key() == Qt.Key_W:
-			if self.radioB2.isVisible():
-				if self.radioB2.isChecked():
-					if self.radS1.isVisible():
-						self.rotate_checked()
-				else:
-					self.radioB2.setChecked(True)
-		if e.key() == Qt.Key_R:
-			if self.buttonAll.isVisible():
-				self.Sbtnstate(True)
-
-		if e.key() == Qt.Key_1:
-			if self.sp_H1.isVisible():
-				if len(self.text_chosen) > 1:
-					self.choose_change = 0
-					self.change_spb("change_mod")
-			else:
-				self.cambia_class(1)
-		if e.key() == Qt.Key_2:
-			if self.sp_H1.isVisible():
-				if len(self.text_chosen) > 1:
-					self.choose_change = 1
-					self.change_spb("change_mod")
-				else:
-					self.choose_change = 0
-			else:
-				self.cambia_class(2)
-		if e.key() == Qt.Key_3:
-			self.cambia_class(0)
-		if e.key() == Qt.Key_F1:
-			self.cambia_class(3)
-		if e.key() == Qt.Key_F2:
-			self.cambia_class(4)
-		if e.key() == Qt.Key_F3:
-			self.cambia_class(5)
-		if e.key() == Qt.Key_F4:
-			self.cambia_class(6)
-		if e.key() == Qt.Key_F5:
-			self.cambia_class(7)
-		if e.key() == Qt.Key_F6:
-			self.cambia_class(8)
-		if e.key() == Qt.Key_F7:
-			self.cambia_class(9)
-		if e.key() == Qt.Key_F8:
-			self.cambia_class(10)
-		if e.key() == Qt.Key_F9:
-			self.cambia_class(11)
-		if e.key() == Qt.Key_F10:
-			self.cambia_class(12)
-		if e.key() == Qt.Key_F11:
-			self.cambia_class(13)
-		if e.key() == Qt.Key_F12:
-			self.cambia_class(14)
-
-		# if e.key() == Qt.Key_1:
-		# 	if self.sp_H1.isVisible():
-		# 		if len(self.text_chosen) > 1:
-		# 			self.choose_change = 0
-		# 			self.change_spb("change_mod")
-		# 	if self.radS1.isVisible():
-		# 		self.radS1.setChecked(True)
-		# 		self.radS2.setChecked(False)
-		# 		self.radS3.setChecked(False)
-		# 		self.radS4.setChecked(False)
-		# if e.key() == Qt.Key_2:
-		# 	if self.sp_H1.isVisible():
-		# 		if len(self.text_chosen) > 1:
-		# 			self.choose_change = 1
-		# 			self.change_spb("change_mod")
-		# 		else:
-		# 			self.choose_change = 0
-		# 	if self.radS2.isVisible():
-		# 		self.radS2.setChecked(True)
-		# 		self.radS1.setChecked(False)
-		# 		self.radS3.setChecked(False)
-		# 		self.radS4.setChecked(False)
-		# if e.key() == Qt.Key_3:
-		# 	if self.radS3.isVisible():
-		# 		self.radS3.setChecked(True)
-		# 		self.radS1.setChecked(False)
-		# 		self.radS2.setChecked(False)
-		# 		self.radS4.setChecked(False)
-		# if e.key() == Qt.Key_4:
-		# 	if self.radS4.isVisible():
-		# 		self.radS4.setChecked(True)
-		# 		self.radS1.setChecked(False)
-		# 		self.radS2.setChecked(False)
-		# 		self.radS3.setChecked(False)
 
 	def rotate_checked(self):
 		if self.radS2.isVisible() and self.radS1.isChecked():
@@ -509,7 +362,7 @@ class UI(QMainWindow):
 		if self.pflag:
 			return
 		txt_l = self.text_saved
-		print(txt_l)
+		# print(txt_l)
 		if txt_l is not None:
 			txt_path = os.path.join(self.sele_path, os.path.basename(self.bad_list[self.i]))
 			new_l = []
@@ -802,16 +655,174 @@ class UI(QMainWindow):
 		self.i = self.bad_list.index(iPath.replace('\\', '/'))
 
 		self.plotter(self.i)
+		self.setClean_mode(self.i)
 		self.vid_name = vid_name
+		self.inst = None
 
 	def open_rep(self):
-		inst, uniq = find_SE(self.sele_path)
+		self.inst, uniq = find_SE(self.sele_path)
 		self.report_win = UI_report(self)
-		self.report_win.get_ins(inst, uniq, self.vid_name)
+		self.report_win.get_ins(self.inst, uniq, self.vid_name)
 		self.report_win.show()
 
 	def close_rep(self):
 		self.report_win.close()
+
+	def active_hand(self, idx_=None):
+		if len(self.text_chosen) < 2:
+			return
+		idx__ = self.choose_change if idx_ == None else idx_
+		act_hnd = self.text_chosen.pop(idx__)
+		self.text_chosen = ['0' + s[1:] for s in self.text_chosen]
+		self.text_chosen.insert(0, act_hnd)
+		self.text_change = None
+		self.send_box(False)
+		self.setClean_mode(self.i)
+		# self.choose_change = len(self.text_chosen) - 1
+		# self.change_spb("change_mod")
+
+	def keyPressEvent(self, e):
+		# print(e.key())
+		if e.key() == Qt.Key_0:
+			if self.sp_H1.isVisible():
+				self.active_hand()
+		if e.key() == Qt.Key_A or e.key() == 16777219:
+			self.send_box()
+		if e.key() == 93 or e.key() == 16777252:
+			self.send_box(False)
+		if e.key() == Qt.Key_P:
+			self.next_()
+		if e.key() == Qt.Key_O:
+			self.back_()
+		if e.key() == Qt.Key_M:
+			self.open_rep()
+		if e.key() == Qt.Key_N:
+			self.close_rep()
+		if e.key() == Qt.Key_L:
+			self.next_(True)
+		if e.key() == Qt.Key_K:
+			self.back_(True)
+		if e.key() == Qt.Key_Z:
+			self.copy_bbox(-1)
+		if e.key() == Qt.Key_F:
+			self.del_chosen()
+
+		if e.key() == Qt.Key_S:
+			if self.pflag:
+				self.flag = True
+			else:
+				if self.sp_H1.isVisible():
+					self.change_spb("H1_1")
+				elif not self.radioNo.isVisible():
+					self.change_spb("change_mod")
+				else:
+					self.setClean_mode(self.i)
+		if e.key() == Qt.Key_D:
+			if self.sp_H1.isVisible():
+				self.change_spb("H2_1")
+			elif not self.radioNo.isVisible():
+				self.change_spb("change_mod")
+			else:
+				self.setClean_mode(self.i)
+		if e.key() == Qt.Key_X:
+			if self.sp_H1.isVisible():
+				self.change_spb("W1_1")
+			elif not self.radioNo.isVisible():
+				self.change_spb("change_mod")
+			else:
+				self.setClean_mode(self.i)
+		if e.key() == Qt.Key_C:
+			if self.sp_H1.isVisible():
+				self.change_spb("W2_1")
+			elif not self.radioNo.isVisible():
+				self.change_spb("change_mod")
+			else:
+				self.setClean_mode(self.i)
+
+		if e.key() == Qt.Key_E:
+			self.radioNo.setChecked(True)
+		if e.key() == Qt.Key_Q:
+			if self.radioB1.isVisible():
+				if self.radioB1.isChecked():
+					if self.radS1.isVisible():
+						self.rotate_checked()
+				else:
+					self.radioB1.setChecked(True)
+		if e.key() == Qt.Key_W:
+			if self.radioB2.isVisible():
+				if self.radioB2.isChecked():
+					if self.radS1.isVisible():
+						self.rotate_checked()
+				else:
+					self.radioB2.setChecked(True)
+		if e.key() == Qt.Key_R:
+			if self.buttonAll.isVisible():
+				self.Sbtnstate(True)
+
+		if e.key() == Qt.Key_1:
+			if self.sp_H1.isVisible():
+				if len(self.text_chosen) > 1:
+					self.choose_change = 0
+					self.change_spb("change_mod")
+			else:
+				self.cambia_class(1)
+		if e.key() == Qt.Key_2:
+			if self.sp_H1.isVisible():
+				if len(self.text_chosen) > 1:
+					self.choose_change = 1
+					self.change_spb("change_mod")
+				else:
+					self.choose_change = 0
+			else:
+				self.cambia_class(2)
+		if e.key() == Qt.Key_3:
+			if self.sp_H1.isVisible():
+				if len(self.text_chosen) > 2:
+					self.choose_change = 2
+					self.change_spb("change_mod")
+				elif len(self.text_chosen) > 1:
+					self.choose_change = 1
+					self.change_spb("change_mod")
+				else:
+					self.choose_change = 0
+			else:
+				self.cambia_class(0)
+		if e.key() == Qt.Key_4:
+			if self.sp_H1.isVisible():
+				if len(self.text_chosen) > 3:
+					self.choose_change = 3
+					self.change_spb("change_mod")
+				elif len(self.text_chosen) > 1:
+					self.choose_change = 1
+					self.change_spb("change_mod")
+				else:
+					self.choose_change = 0
+		if e.key() == Qt.Key_F1:
+			self.cambia_class(3)
+		if e.key() == Qt.Key_F2:
+			self.cambia_class(4)
+		if e.key() == Qt.Key_F3:
+			self.cambia_class(5)
+		if e.key() == Qt.Key_F4:
+			self.cambia_class(6)
+		if e.key() == Qt.Key_F5:
+			self.cambia_class(7)
+		if e.key() == Qt.Key_F6:
+			self.cambia_class(8)
+		if e.key() == Qt.Key_F7:
+			self.cambia_class(9)
+		if e.key() == Qt.Key_F8:
+			self.cambia_class(10)
+		if e.key() == Qt.Key_F9:
+			self.cambia_class(11)
+		if e.key() == Qt.Key_F10:
+			self.cambia_class(12)
+		if e.key() == Qt.Key_F11:
+			self.cambia_class(13)
+		if e.key() == Qt.Key_F12:
+			self.cambia_class(14)
+
+
 
 if __name__ == "__main__":
 	# Initialize the app

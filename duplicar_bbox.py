@@ -1,9 +1,9 @@
 # Programa para duplicar bboxes en un grupo de anotaciones
 import os
 
-bbox_file = "C:/Users/Luis Bringas/Desktop/NEW_IPN_annotations_txt/3BG32_9_R_37_#513/master.txt"
-frames_path = "C:/Users/Luis Bringas/Desktop/NEW_IPN_annotations_txt/3BG32_9_R_37_#513"  
-frame_range = [5316, 5415] #Ingresar el frame inicial y el final en enteros, no poner ceros a ;a izquierda.
+bbox_file = "C:/Users/Luis Bringas/Desktop/NEW_IPN_annotations_txt/6TK53_10_L_34_#372/6TK53_10_L_34_#372_000549.txt"
+frames_path = "C:/Users/Luis Bringas/Desktop/NEW_IPN_annotations_txt/6TK53_10_L_34_#372"  
+frame_range = [550, 1654] #Ingresar el frame inicial y el final en enteros, no poner ceros a ;a izquierda.
 
 
 def add_lines(file_path, bboxes):

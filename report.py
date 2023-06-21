@@ -237,12 +237,13 @@ class UI_report(QMainWindow):
 		self.lbt.setStyleSheet("background-color: rgb(150,200,255)")
 		self.instances = []
 		for i, insta in enumerate(inst):
-			idx, s, e, f, s_i = insta
+			idx, s, e, f, s_i, hnds = insta
 			if i < 1:
 				bold = True if s > 1 else False
 			else:
-				_, _, e_prev, _, _ = inst[i-1]
+				_, _, e_prev, _, _, _ = inst[i-1]
 				bold = True if s-e_prev > 1 else False
+			bold = True if hnds > 1 else False
 			self.set_radio(i, idx, '{:04d}'.format(s), '{:04d}'.format(e), f, bold)
 			self.instances.append([s_i, s])
 		for idx_, cnt in zip(range(len(classes_id)), unique):

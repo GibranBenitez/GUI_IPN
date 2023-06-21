@@ -10,6 +10,31 @@ classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f",
                 "G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", "G12: Grab"]
 random.seed(42)
 
+def calculate_iou_yolo(yolo_bbox1, yolo_bbox2, img_width, img_height):
+    # Helper function to convert YOLO bbox to regular bbox
+    def yolo_to_bbox(yolo, img_width, img_height):
+        x_center, y_center, width, height = map(float, yolo.split()[1:])
+        x1 = (x_center - width / 2) * img_width
+        y1 = (y_center - height / 2) * img_height
+        x2 = (x_center + width / 2) * img_width
+        y2 = (y_center + height / 2) * img_height
+        return [x1, y1, x2, y2]
+    # Convert YOLO bboxes to regular format
+    bbox1 = yolo_to_bbox(yolo_bbox1, img_width, img_height)
+    bbox2 = yolo_to_bbox(yolo_bbox2, img_width, img_height)
+    # Calculate IoU
+    x1_max = max(bbox1[0], bbox2[0])
+    y1_max = max(bbox1[1], bbox2[1])
+    x2_min = min(bbox1[2], bbox2[2])
+    y2_min = min(bbox1[3], bbox2[3])
+    intersection = max(x2_min - x1_max, 0) * max(y2_min - y1_max, 0)
+    area_box1 = (bbox1[2] - bbox1[0]) * (bbox1[3] - bbox1[1])
+    area_box2 = (bbox2[2] - bbox2[0]) * (bbox2[3] - bbox2[1])
+    union = area_box1 + area_box2 - intersection
+    if union == 0:
+        return 0
+    return intersection / union
+
 def xml_to_yolo_bbox(bbox, w, h):
     # xmin, ymin, xmax, ymax
     x_center = ((bbox[2] + bbox[0]) / 2) / w
@@ -76,7 +101,8 @@ def draw_boxes(image_path, txt_file, color_, label_=None, img_temp=True, image=N
             break
         lprin = label_ if single else "{}({})".format(label_, i+1)
         [x1,y1,x2,y2] = yolo_to_xml_bbox([float(staff[1]),float(staff[2]),float(staff[3]),float(staff[4])], width, height)
-        plot_one_box([x1,y1,x2,y2], image, color=[s-(35*i) for s in color_], label=lprin, line_thickness=None, textdow=textdow)
+        colore_ = [57, 12, 140] if int(staff[0]) < 1 else color_
+        plot_one_box([x1,y1,x2,y2], image, color=[s-(35*i) for s in colore_], label=lprin, line_thickness=None, textdow=textdow)
     if img_temp:
         cv2.imwrite(imname+".jpg",image) 
         return None
@@ -85,7 +111,7 @@ def draw_boxes(image_path, txt_file, color_, label_=None, img_temp=True, image=N
 
 def draw_change_boxes(txt_file, index_=None, value_=0, xml_in=True):
     label_ = None
-    color_ = [20, 255, 60]
+    color_ = [20, 255, 60]  # bright shade of green
     image = cv2.imread("temp_img2.jpg")
 
     if xml_in:
@@ -155,8 +181,10 @@ def find_SE(txt_path_list, lenv = False):
     anot_list = glob.glob(txt_path_list + "/*.txt")
     list_ids = []
     frame_ids = []
+    hands_list = []
     for anot_txt in anot_list:
         txt_l = read_txt(anot_txt)
+        hands_list.append(1 if len(txt_l) > 1 else 0)
         frame_ids.append(int(anot_txt.split(".txt")[0].split("_")[-1]))
         list_ids.append(int(txt_l[0].split(" ")[0]))
     instances = []
@@ -171,7 +199,7 @@ def find_SE(txt_path_list, lenv = False):
             e = frame_ids[i-1]
             if lenv:
                 s_i = len(anot_list)
-            instances.append([list_ids[i-1], s, e, f, s_i])
+            instances.append([list_ids[i-1], s, e, f, s_i, sum(hands_list[s_i:i-1])])
             ids_all.append(list_ids[i-1])
             s = frame_ids[i]
             s_i = i
@@ -184,7 +212,7 @@ def find_SE(txt_path_list, lenv = False):
         e = frame_ids[i]
     if lenv:
         s_i = len(anot_list)
-    instances.append([list_ids[i], s, e, f, s_i])
+    instances.append([list_ids[i], s, e, f, s_i, sum(hands_list[s_i:i])])
     ids_all.append(list_ids[i])
     values, counts = np.unique(ids_all, return_counts=True)
     uniq_cnt = list(range(len(classes_id)))
