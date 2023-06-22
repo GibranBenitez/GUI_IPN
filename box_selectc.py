@@ -18,17 +18,17 @@ fin_mode = True
 frames_path = "C:\\Users\\Luis Bringas\\Desktop\\NEW_IPN_final_frames"
 # frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
 #frames_path = "E:/datasets/IPN_hand/frames"
-# frames_path = "D:/data/IPN_hand/frames" 
+frames_path = "I:/data/IPN_hand/frames" 
 
 if fin_mode:
 	txt_folder = "NEW_IPN_annotations_txt"
 	# txt_folder = "final_test_annots"
-	# txt_folder = "annots"
+	txt_folder = "annots"
 	# init_path = "F:\\IPN_Hand\\annotations\\final_annots_yolo\\" + txt_folder
 	init_path = "C:\\Users\\Luis Bringas\\Desktop\\" + txt_folder
 	#init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\" + txt_folder
 	#init_path = "D:/Pytorch/yolov5/runs/test_gordo/" + txt_folder
-	# init_path = "D:/data/IPN_hand/" + txt_folder
+	init_path = "I:/data/IPN_hand/" + txt_folder
 else:
 	txt_folder = "NEW_IPN_annotations_txt"
 	init_path = "C:\\Users\\Luis Bringas\\Desktop\\" + txt_folder
@@ -113,7 +113,7 @@ class UI(QMainWindow):
 		self.shi_K = QShortcut(QKeySequence('Shift+K'), self)
 		self.shi_K.activated.connect(self.play_back)
 		self.shi_Z = QShortcut(QKeySequence('Shift+Z'), self)
-		self.shi_Z.activated.connect(self.copy_bbox)
+		self.shi_Z.activated.connect(self.copy_txt)
 		self.shi_S = QShortcut(QKeySequence('Shift+S'), self)
 		self.shi_S.activated.connect(lambda: self.change_spb('H1_0'))
 		self.shi_D = QShortcut(QKeySequence('Shift+D'), self)
@@ -122,8 +122,25 @@ class UI(QMainWindow):
 		self.shi_X.activated.connect(lambda: self.change_spb('W1_0'))
 		self.shi_C = QShortcut(QKeySequence('Shift+C'), self)
 		self.shi_C.activated.connect(lambda: self.change_spb('W2_0'))
+
 		self.ctrl_zero = QShortcut(QKeySequence('Ctrl+0'), self)
 		self.ctrl_zero.activated.connect(self.active_track)
+		self.shi_1 = QShortcut(QKeySequence('Shift+1'), self)
+		self.shi_1.activated.connect(lambda: self.copy_bbox(0))
+		self.shi_2 = QShortcut(QKeySequence('Shift+2'), self)
+		self.shi_2.activated.connect(lambda: self.copy_bbox(1))
+		self.shi_3 = QShortcut(QKeySequence('Shift+3'), self)
+		self.shi_3.activated.connect(lambda: self.copy_bbox(2))
+		self.shi_4 = QShortcut(QKeySequence('Shift+4'), self)
+		self.shi_4.activated.connect(lambda: self.copy_bbox(3))
+		self.ctrl_1 = QShortcut(QKeySequence('Ctrl+1'), self)
+		self.ctrl_1.activated.connect(lambda: self.copy_bbox(0,-1))
+		self.ctrl_2 = QShortcut(QKeySequence('Ctrl+2'), self)
+		self.ctrl_2.activated.connect(lambda: self.copy_bbox(1,-1))
+		self.ctrl_3 = QShortcut(QKeySequence('Ctrl+3'), self)
+		self.ctrl_3.activated.connect(lambda: self.copy_bbox(2,-1))
+		self.ctrl_4 = QShortcut(QKeySequence('Ctrl+4'), self)
+		self.ctrl_4.activated.connect(lambda: self.copy_bbox(3,-1))
 
 		# Click the dropdown box
 		self.button.clicked.connect(self.clicker)
@@ -546,7 +563,7 @@ class UI(QMainWindow):
 		else:
 			return
 
-	def copy_bbox(self, idx=1):
+	def copy_txt(self, idx=1):
 		if self.pflag or self.sp_H1.isVisible():
 			return
 		txt_path = self.sele_path + os.path.basename(self.bad_list[self.i])
@@ -555,7 +572,7 @@ class UI(QMainWindow):
 			if os.path.exists(prev_path):
 				shutil.copy(prev_path, txt_path)
 				self.setClean_mode(self.i)
-				self.label_msg.setText("BBOX Copiado!!")
+				self.label_msg.setText("TXT Copiado!!")
 				self.set_idc(2)
 			else:
 				print("NOT FOUND {}".format(os.path.basename(self.bad_list[self.i+idx])))
@@ -678,6 +695,38 @@ class UI(QMainWindow):
 	def close_rep(self):
 		self.report_win.close()
 
+	def copy_bbox(self, idx=0, prev=1, iou_th=0.35):
+		if self.pflag or self.sp_H1.isVisible():
+			return
+		self.setClean_mode(self.i)
+		prev_path = self.sele_path + os.path.basename(self.bad_list[self.i-prev])
+		if os.path.exists(prev_path):
+			txt_prev = self.read_txt(prev_path)
+			try:
+				new_box = txt_prev[idx]
+			except:
+				print("WARNING: No bbox with ID={} found in prev. frame".format(idx+1))
+				return
+			flag = False
+			for cur_bbox in self.text_chosen:
+				iou = calculate_iou_yolo(new_box, cur_bbox, self.img_size[0], self.img_size[1])
+				if iou >= iou_th:
+					flag = True
+					break
+			if not flag:
+				self.text_chosen.append(new_box)
+			else:
+				print("WARNING: Can't copy bbox with iou {}".format(iou))
+				return
+			txt_path = os.path.join(self.sele_path, os.path.basename(self.bad_list[self.i]))
+			if self.text_chosen is not None:
+				self.write_txt(txt_path, self.text_chosen)
+			self.setClean_mode(self.i)
+			self.label_msg.setText("BBOX Copiado!!")
+			self.set_idc(2)
+		else:
+			print("NOT FOUND {}".format(os.path.basename(self.bad_list[self.i-prev])))
+
 	def active_hand(self, frame_i=None, idx_=None):
 		if self.pflag:
 			return
@@ -711,8 +760,8 @@ class UI(QMainWindow):
 		if self.text_chosen is not None:
 			self.write_txt(txt_path, self.text_chosen)
 
-	def active_track(self, iou_th=0.45):
-		if self.pflag:
+	def active_track(self, iou_th=0.28):
+		if self.pflag or self.sp_H1.isVisible():
 			return
 		if not self.f_ins:
 			return
@@ -778,7 +827,7 @@ class UI(QMainWindow):
 		if e.key() == Qt.Key_K:
 			self.back_(True)
 		if e.key() == Qt.Key_Z:
-			self.copy_bbox(-1)
+			self.copy_txt(-1)
 		if e.key() == Qt.Key_F:
 			self.del_chosen()
 
