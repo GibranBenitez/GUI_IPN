@@ -666,6 +666,7 @@ class UI(QMainWindow):
 		self.vid_name = vid_name
 		self.inst = None
 		self.f_ins = False
+		self.a_flag = False
 
 	def open_rep(self):
 		self.inst, uniq = find_SE(self.sele_path)
@@ -692,6 +693,23 @@ class UI(QMainWindow):
 		txt_path = os.path.join(self.sele_path, os.path.basename(self.bad_list[f_i]))
 		if self.text_chosen is not None:
 			self.write_txt(txt_path, self.text_chosen)
+	
+	def del_overboxes(self, frame_i=None, iou_th=0.9):
+		f_i = self.i if frame_i == None else frame_i
+		active_bbox = self.text_chosen[0]
+		del_box_idx = []
+		for i, cur_bbox in enumerate(self.text_chosen):
+			if i < 1:
+				continue
+			iou = calculate_iou_yolo(active_bbox, cur_bbox, self.img_size[0], self.img_size[1])
+			if iou >= iou_th:
+				print("-------AQUI HAY DOBLE", iou)
+				del_box_idx.append(i)
+		for i in sorted(del_box_idx, reverse=True):
+			del_bbox = self.text_chosen.pop(i)
+		txt_path = os.path.join(self.sele_path, os.path.basename(self.bad_list[f_i]))
+		if self.text_chosen is not None:
+			self.write_txt(txt_path, self.text_chosen)
 
 	def active_track(self, iou_th=0.45):
 		if self.pflag:
@@ -708,7 +726,7 @@ class UI(QMainWindow):
 		active_bbox = self.text_chosen[0]
 		j = 0
 		self.flag = False
-		self.pflag = True
+		self.a_flag  = True
 		for j in range(cur_frame, cur_seg[2]):
 			self.setClean_mode(j)
 			if len(self.text_chosen) > 1:
@@ -724,16 +742,18 @@ class UI(QMainWindow):
 					break
 			else:
 				active_bbox = self.text_chosen[0]
-			app.processEvents()
+			if len(self.text_chosen) > 1:
+				self.del_overboxes(j)
 			self.setClean_mode(j)
+			app.processEvents()
 			if self.flag:
 				break
-			time.sleep(0.007)
+			time.sleep(0.003)
 		if j > 0:
 			self.i = j
 			self.setClean_mode(j)
 		self.flag = False
-		self.pflag = False
+		self.a_flag  = False
 
 	def keyPressEvent(self, e):
 		# print(e.key())
@@ -764,6 +784,8 @@ class UI(QMainWindow):
 
 		if e.key() == Qt.Key_S:
 			if self.pflag:
+				self.flag = True
+			elif self.a_flag:
 				self.flag = True
 			else:
 				if self.sp_H1.isVisible():
