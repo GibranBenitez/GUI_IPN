@@ -6,7 +6,7 @@ from pathlib import Path
 import sys, glob, os, time, random, shutil 
 from threading import Timer
 from natsort import natsorted, os_sorted, realsorted, humansorted
-from utils import draw_boxes, draw_change_boxes, xml_to_yolo, find_SE
+from utils import draw_boxes, draw_change_boxes, xml_to_yolo, find_SE, calculate_iou_yolo, get_image_dim
 from report import UI_report
 
 classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f", "G02: Click-2f", "G03: Th-up", "G04: Th-down", 
@@ -14,20 +14,21 @@ classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f",
 
 fin_mode = True
 # fin_mode = False
-frames_path = "F:\\IPN_Hand\\frames" #old IPN
-# frames_path = "C:\\Users\\Luis Bringas\\Desktop\\NEW_IPN_final_frames"
+# frames_path = "F:\\IPN_Hand\\frames" #old IPN
+frames_path = "C:\\Users\\Luis Bringas\\Desktop\\NEW_IPN_final_frames"
 # frames_path = "C:/Users/gjben/Documents/yolov5/runs/detect/frames"
 #frames_path = "E:/datasets/IPN_hand/frames"
-# frames_path = "D:/datasets/IPN_hand/frames"
+# frames_path = "D:/data/IPN_hand/frames" 
 
 if fin_mode:
-	# txt_folder = "NEW_IPN_annotations_txt"
-	txt_folder = "final_annot_test"
-	init_path = "F:\\IPN_Hand\\annotations\\final_annots_yolo\\" + txt_folder
-	# init_path = "C:\\Users\\Luis Bringas\\Desktop\\" + txt_folder
+	txt_folder = "NEW_IPN_annotations_txt"
+	# txt_folder = "final_test_annots"
+	# txt_folder = "annots"
+	# init_path = "F:\\IPN_Hand\\annotations\\final_annots_yolo\\" + txt_folder
+	init_path = "C:\\Users\\Luis Bringas\\Desktop\\" + txt_folder
 	#init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\" + txt_folder
 	#init_path = "D:/Pytorch/yolov5/runs/test_gordo/" + txt_folder
-	# init_path = "D:/Pytorch/YOLOv5/" + txt_folder
+	# init_path = "D:/data/IPN_hand/" + txt_folder
 else:
 	txt_folder = "NEW_IPN_annotations_txt"
 	init_path = "C:\\Users\\Luis Bringas\\Desktop\\" + txt_folder
@@ -121,6 +122,8 @@ class UI(QMainWindow):
 		self.shi_X.activated.connect(lambda: self.change_spb('W1_0'))
 		self.shi_C = QShortcut(QKeySequence('Shift+C'), self)
 		self.shi_C.activated.connect(lambda: self.change_spb('W2_0'))
+		self.ctrl_zero = QShortcut(QKeySequence('Ctrl+0'), self)
+		self.ctrl_zero.activated.connect(self.active_track)
 
 		# Click the dropdown box
 		self.button.clicked.connect(self.clicker)
@@ -529,6 +532,8 @@ class UI(QMainWindow):
 			text_list = []
 			for line_ in dlab:
 				if len(line_.split()) > 2:
+					if len(line_.split()) > 5:
+						line_ = ' '.join(line_.split()[:5])
 					text_list.append(line_.strip())
 			return text_list
 		except:
@@ -566,6 +571,7 @@ class UI(QMainWindow):
 		self.sp_W1.setVisible(False)
 		self.sp_W2.setVisible(False)
 		draw_boxes(img_path, txt_, colors[idx], label_, True, None, tdown, imname="temp_img2")
+		self.img_size = get_image_dim(img_path)
 		pixmap = QPixmap("temp_img2.jpg")
 		self.label.setPixmap(pixmap)
 
@@ -598,6 +604,7 @@ class UI(QMainWindow):
 
 		txt_ = self.bad_list[indx]
 		img_ = os.path.join(self.img_path, os.path.basename(txt_).replace(self.ext, '.jpg'))
+		self.img_size = get_image_dim(img_)
 
 		bad_txt = self.read_txt(txt_)
 		ano1_txt = self.read_txt(self.ano1_path, os.path.basename(txt_))
@@ -658,34 +665,82 @@ class UI(QMainWindow):
 		self.setClean_mode(self.i)
 		self.vid_name = vid_name
 		self.inst = None
+		self.f_ins = False
 
 	def open_rep(self):
 		self.inst, uniq = find_SE(self.sele_path)
 		self.report_win = UI_report(self)
 		self.report_win.get_ins(self.inst, uniq, self.vid_name)
 		self.report_win.show()
+		self.f_ins = True
 
 	def close_rep(self):
 		self.report_win.close()
 
-	def active_hand(self, idx_=None):
+	def active_hand(self, frame_i=None, idx_=None):
+		if self.pflag:
+			return
 		if len(self.text_chosen) < 2:
 			return
 		idx__ = self.choose_change if idx_ == None else idx_
+		f_i = self.i if frame_i == None else frame_i
 		act_hnd = self.text_chosen.pop(idx__)
-		self.text_chosen = ['0' + s[1:] for s in self.text_chosen]
+		self.text_chosen = [' '.join(['0'] + s.split()[1:]) for s in self.text_chosen] 
 		self.text_chosen.insert(0, act_hnd)
 		self.text_change = None
 		self.send_box(False)
-		self.setClean_mode(self.i)
-		# self.choose_change = len(self.text_chosen) - 1
-		# self.change_spb("change_mod")
+		txt_path = os.path.join(self.sele_path, os.path.basename(self.bad_list[f_i]))
+		if self.text_chosen is not None:
+			self.write_txt(txt_path, self.text_chosen)
+
+	def active_track(self, iou_th=0.45):
+		if self.pflag:
+			return
+		if not self.f_ins:
+			return
+		cur_frame = self.i + 1
+		for inst_seg in self.inst:
+			if cur_frame >= inst_seg[1] and cur_frame <= inst_seg[2]:
+				cur_seg = inst_seg
+				break
+		if cur_seg[-1] < 1:
+			return
+		active_bbox = self.text_chosen[0]
+		j = 0
+		self.flag = False
+		self.pflag = True
+		for j in range(cur_frame, cur_seg[2]):
+			self.setClean_mode(j)
+			if len(self.text_chosen) > 1:
+				for idx, new_bbox in enumerate(self.text_chosen):
+					iou = calculate_iou_yolo(active_bbox, new_bbox, self.img_size[0], self.img_size[1])
+					print(j+1, iou)
+					if iou >= iou_th:
+						active_bbox = new_bbox
+						self.active_hand(j, idx)
+						break
+				if idx + 1 >= len(self.text_chosen):
+					print(j+1, "WARNING: No hay BBOX que sobrepase el IoU_th")
+					break
+			else:
+				active_bbox = self.text_chosen[0]
+			app.processEvents()
+			self.setClean_mode(j)
+			if self.flag:
+				break
+			time.sleep(0.007)
+		if j > 0:
+			self.i = j
+			self.setClean_mode(j)
+		self.flag = False
+		self.pflag = False
 
 	def keyPressEvent(self, e):
 		# print(e.key())
 		if e.key() == Qt.Key_0:
 			if self.sp_H1.isVisible():
 				self.active_hand()
+				self.setClean_mode(self.i)
 		if e.key() == Qt.Key_A or e.key() == 16777219:
 			self.send_box()
 		if e.key() == 93 or e.key() == 16777252:

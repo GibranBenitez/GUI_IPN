@@ -10,6 +10,11 @@ classes_id = ["D0X: No-gest", "B0A: Point-1f", "B0B: Point-2f", "G01: Click-1f",
                 "G05: Th-left", "G06: Th-right", "G07: Open-2", "G08: 2click-1f", "G09: 2click-2f", "G10: Zoom-in", "G11: Zoom-o", "G12: Grab"]
 random.seed(42)
 
+def get_image_dim(img_path):
+    image = cv2.imread(img_path)
+    height, width = image.shape[:2]
+    return [width, height]
+
 def calculate_iou_yolo(yolo_bbox1, yolo_bbox2, img_width, img_height):
     # Helper function to convert YOLO bbox to regular bbox
     def yolo_to_bbox(yolo, img_width, img_height):
@@ -150,10 +155,18 @@ def read_txt(patho, namae=None):
         my_file = open(txt_path, "r")
         dlab = my_file.readlines()
         text_list = []
+        flag = False
         for line_ in dlab:
             if len(line_.split()) > 2:
+                if len(line_.split()) > 5:
+                    line_ = ' '.join(line_.split()[:5])
+                    print('WARNING: {} with more than 4 annots'.format(os.path.basename(txt_path)))
+                    flag = 'WA'
                 text_list.append(line_.strip())
-        return text_list
+        if flag == 'WA':
+            return [text_list, flag]
+        else:
+            return text_list
     except:
         return ["NO BBOX u.u"]
 
@@ -184,6 +197,12 @@ def find_SE(txt_path_list, lenv = False):
     hands_list = []
     for anot_txt in anot_list:
         txt_l = read_txt(anot_txt)
+        try:
+            if txt_l[1] == 'WA':
+                txt_l = txt_l[0]
+                write_txt(anot_txt, txt_l)
+        except:
+            pass
         hands_list.append(1 if len(txt_l) > 1 else 0)
         frame_ids.append(int(anot_txt.split(".txt")[0].split("_")[-1]))
         list_ids.append(int(txt_l[0].split(" ")[0]))

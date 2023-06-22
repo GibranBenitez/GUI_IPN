@@ -27,7 +27,6 @@
 - **[Shf+K]**	Reproduce en reversa todos los frames en CLEAN mode.
 - **[S]**	    Detiene la repodrudccion de frames SOLO si se estan reproduciendo.
 
-
 #### CHANGE MODE
 - **[S]** 	    Entra a CHANGE mode desde CLEAN mode, o modifica la altura del bbox seleccionado si estamos en CHANGE mode. Tambien funciona para entrar a CLEAN mode desde modo anotaciones.
 - **[Shf+S]** 	Modifica la altulra del bbox seleccionado si estamos en CHANGE mode.
@@ -41,6 +40,10 @@
 - **[F]**	    Elimina el bbox seleccionado (si estas en CHANGE mode, regresa a CLEAN mode).
 - **[1]** 	    Selecciona la caja 1 del bbox seleccionado para hacer cambios (cuando hay 2 bboxes selected)
 - **[2]** 	    Selecciona la caja 2 del bbox seleccionado para hacer cambios (cuando hay 2 bboxes selected)
+- **[0]**      Seleciona la mano activa (**color amarillo**, la mano que esta haciendo el gesto) y las otras bbox en el frame las cambia a D0X.
+
+#### Mano activa
+- **[Ctr+0]**  Trackea la mano activa en el semgento de clase actual solo si hay mas de una mano en el segmento. **Es necesario general el reportee [M] para usar esta funcion**
 
 # GUI for IPN hand annotation (image.py)
 
