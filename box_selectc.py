@@ -693,7 +693,10 @@ class UI(QMainWindow):
 		self.f_ins = True
 
 	def close_rep(self):
-		self.report_win.close()
+		try:
+			self.report_win.close()
+		except:
+			pass
 
 	def copy_bbox(self, idx=0, prev=1, iou_th=0.35):
 		if self.pflag or self.sp_H1.isVisible():
@@ -734,11 +737,16 @@ class UI(QMainWindow):
 			return
 		idx__ = self.choose_change if idx_ == None else idx_
 		f_i = self.i if frame_i == None else frame_i
+		g_class = '0'
+		for bbox_ in self.text_chosen:
+			if int(bbox_.split()[0]) > 0:
+				g_class = bbox_.split()[0]
+				break
 		act_hnd = self.text_chosen.pop(idx__)
 		self.text_chosen = [' '.join(['0'] + s.split()[1:]) for s in self.text_chosen] 
-		self.text_chosen.insert(0, act_hnd)
-		self.text_change = None
-		self.send_box(False)
+		self.text_chosen.insert(0, ' '.join([str(g_class)] + act_hnd.split()[1:]))
+		# self.text_change = None
+		# self.send_box(False)
 		txt_path = os.path.join(self.sele_path, os.path.basename(self.bad_list[f_i]))
 		if self.text_chosen is not None:
 			self.write_txt(txt_path, self.text_chosen)
@@ -776,17 +784,20 @@ class UI(QMainWindow):
 		j = 0
 		self.flag = False
 		self.a_flag  = True
+		print(cur_seg)
 		for j in range(cur_frame, cur_seg[2]):
 			self.setClean_mode(j)
 			if len(self.text_chosen) > 1:
+				iou_flag = False
 				for idx, new_bbox in enumerate(self.text_chosen):
 					iou = calculate_iou_yolo(active_bbox, new_bbox, self.img_size[0], self.img_size[1])
 					print(j+1, iou)
 					if iou >= iou_th:
 						active_bbox = new_bbox
 						self.active_hand(j, idx)
+						iou_flag = True
 						break
-				if idx + 1 >= len(self.text_chosen):
+				if not iou_flag:
 					print(j+1, "WARNING: No hay BBOX que sobrepase el IoU_th")
 					break
 			else:

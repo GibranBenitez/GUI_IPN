@@ -206,6 +206,9 @@ def find_SE(txt_path_list, lenv = False):
         hands_list.append(1 if len(txt_l) > 1 else 0)
         frame_ids.append(int(anot_txt.split(".txt")[0].split("_")[-1]))
         list_ids.append(int(txt_l[0].split(" ")[0]))
+        if int(txt_l[0].split(" ")[0]) >= len(classes_id):
+            print("ERROR: Revisar el TXT: {}".format(os.path.basename(anot_txt)))
+            return
     instances = []
     ids_all = []
     for i, idx in enumerate(list_ids):
