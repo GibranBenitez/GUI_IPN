@@ -16,6 +16,8 @@
 - **[Z]**	    Copia el txt del frame anterior.
 - **[Shf+Z]**	Copia el txt del frame siguiente.
 - **[F]**	    Elimina el txt de frame actual.
+- **[Shf+#_de_box]**	Copia el box especificado del frame anterior. **(El numero de box depende de en que linea este en el frame anterior)**
+- **[Ctr+#_de_box]**	Copia el box especificado del frame siguiente. **(El numero de box depende de en que linea este en el frame anterior)**
 
 #### Navegacion
 - **[P]**	    Muestra el siguiente frame con anotaciones.
