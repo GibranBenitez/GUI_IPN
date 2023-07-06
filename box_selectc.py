@@ -23,7 +23,7 @@ frames_path = "C:\\Users\\Luis Bringas\\Desktop\\NEW_IPN_final_frames"
 if fin_mode:
 	txt_folder = "NEW_IPN_annotations_txt"
 	# txt_folder = "final_test_annots"
-	# txt_folder = "annots"
+	# txt_folder = "final_train_annots"
 	# init_path = "F:\\IPN_Hand\\annotations\\final_annots_yolo\\" + txt_folder
 	init_path = "C:\\Users\\Luis Bringas\\Desktop\\" + txt_folder
 	#init_path = "C:\\Users\\Luis Bringas\\Desktop\\New_gt\\" + txt_folder
